@@ -1,10 +1,12 @@
 package com.jkojote.libraryserver.config;
 
-import com.jkojote.library.config.PersistenceConfig;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.*;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 @Configuration
-@Import(PersistenceConfig.class)
+@EnableWebMvc
+@Import(MvcConfig.class)
 public class WebConfig {
+
 }
+

@@ -17,7 +17,7 @@ extends AbstractAnnotationConfigDispatcherServletInitializer {
 
     @Override
     protected Class<?>[] getServletConfigClasses() {
-        return getRootConfigClasses();
+        return new Class[] { WebConfig.class };
     }
 
     @Override
