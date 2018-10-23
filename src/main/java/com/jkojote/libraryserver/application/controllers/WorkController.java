@@ -42,10 +42,10 @@ public class WorkController {
         this.jsonParser = new JsonParser();
         this.defaultHeaders = new HttpHeaders();
         defaultHeaders.set("Content-Type", "application/json");
-        defaultHeaders.add("Access-Control-Allow-Origin", "*");
     }
 
     @PostMapping("creation")
+    @CrossOrigin
     public ResponseEntity<String> createWork(ServletRequest req) throws IOException {
         try (BufferedReader reader = req.getReader()) {
             JsonObject json = jsonParser.parse(reader).getAsJsonObject();
@@ -63,6 +63,7 @@ public class WorkController {
     }
 
     @GetMapping("{id}")
+    @CrossOrigin
     public ResponseEntity<String> getWork(@PathVariable("id") long id) {
         Work work = workRepository.findById(id);
         if (work == null) {
@@ -76,6 +77,7 @@ public class WorkController {
     }
 
     @GetMapping("{id}/description")
+    @CrossOrigin
     public ResponseEntity<String> getDescription(@PathVariable("id") long id) {
         Work work = workRepository.findById(id);
         if (work == null) {
@@ -89,6 +91,7 @@ public class WorkController {
     }
 
     @GetMapping("{id}/authors")
+    @CrossOrigin
     public ResponseEntity<String> getAuthors(@PathVariable("id") long id) {
         Work work = workRepository.findById(id);
         if (work == null) {
@@ -110,6 +113,7 @@ public class WorkController {
     }
 
     @PutMapping("{id}/editing")
+    @CrossOrigin
     public ResponseEntity<String> editWork(@PathVariable("id") long id, ServletRequest req) {
         try {
             Work work = workRepository.findById(id);

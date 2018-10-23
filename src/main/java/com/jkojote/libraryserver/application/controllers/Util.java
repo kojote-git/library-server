@@ -11,7 +11,6 @@ public final class Util {
     private static final HttpHeaders DEFAULT_HEADERS = new HttpHeaders();
 
     static {
-        DEFAULT_HEADERS.add("Access-Control-Allow-Origin", "*");
         DEFAULT_HEADERS.set("Content-Type", "application/json");
     }
 

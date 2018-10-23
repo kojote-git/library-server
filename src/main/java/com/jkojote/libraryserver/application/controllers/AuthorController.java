@@ -41,11 +41,11 @@ public class AuthorController {
     }
 
     @PostMapping("creation")
+    @CrossOrigin
     public ResponseEntity<String> creation(ServletRequest req) throws IOException {
         long id = authorRepository.nextId();
         HttpHeaders headers = new HttpHeaders();
         headers.set("Content-Type", "application/json");
-        headers.add("Access-Control-Allow-Origin", "*");
         try (BufferedReader reader = req.getReader()) {
             JsonObject json = jsonParser.parse(reader).getAsJsonObject();
             String firstName = json.get("firstName").getAsString();
@@ -55,16 +55,16 @@ public class AuthorController {
 
             Author author = Author.createNew(id, name);
             authorRepository.save(author);
-            return new ResponseEntity<>("{\"id\":\"" + id + "\"}", headers, HttpStatus.CREATED);
+            return new ResponseEntity<>("{\"id\":"+id+"}", headers, HttpStatus.CREATED);
         }
     }
 
     @GetMapping("{id}")
+    @CrossOrigin
     public ResponseEntity<String> getAuthor(@PathVariable("id") long id) {
         Author author = authorRepository.findById(id);
         HttpHeaders headers = new HttpHeaders();
         headers.set("Content-Type", "application/json");
-        headers.add("Access-Control-Allow-Origin", "*");
         if (author == null) {
             return errorResponse("no author with such id: " + id, headers, HttpStatus.UNPROCESSABLE_ENTITY);
         }
@@ -77,11 +77,11 @@ public class AuthorController {
     }
 
     @GetMapping("{id}/works")
+    @CrossOrigin
     public ResponseEntity<String> getWorks(@PathVariable("id") long id) {
         Author author = authorRepository.findById(id);
         HttpHeaders headers = new HttpHeaders();
         headers.set("Content-Type", "application/json");
-        headers.add("Access-Control-Allow-Origin", "*");
         if (author == null) {
             return errorResponse("no author with such id: " + id, HttpStatus.UNPROCESSABLE_ENTITY);
         }
@@ -98,6 +98,7 @@ public class AuthorController {
     }
 
     @PutMapping("{id}/editing")
+    @CrossOrigin
     public ResponseEntity<String> editAuthor(@PathVariable("id") long id, ServletRequest req) {
         Author a = authorRepository.findById(id);
         if (a == null) {
