@@ -1,6 +1,6 @@
 com/jkojote/libraryserver/config/WebConfig.class
 com/jkojote/libraryserver/application/controllers/AuthorController.class
 com/jkojote/libraryserver/application/controllers/WorkController.class
-com/jkojote/libraryserver/Main.class
 com/jkojote/libraryserver/config/MvcConfig.class
+com/jkojote/libraryserver/application/controllers/Util.class
 com/jkojote/libraryserver/application/ApplicationInitializer.class

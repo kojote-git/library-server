@@ -1,11 +1,11 @@
 package com.jkojote.libraryserver.application.controllers;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonPrimitive;
+import com.google.gson.*;
 import com.jkojote.library.domain.model.author.Author;
 import com.jkojote.library.domain.model.work.Work;
 import com.jkojote.library.domain.shared.domain.DomainRepository;
+import com.jkojote.library.values.OrdinaryText;
+import com.jkojote.library.values.Text;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
@@ -16,6 +16,9 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.ServletRequest;
 import java.io.BufferedReader;
 import java.io.IOException;
+
+import static com.jkojote.libraryserver.application.controllers.Util.errorResponse;
+import static com.jkojote.libraryserver.application.controllers.Util.responseMessage;
 
 @RestController
 @RequestMapping("/work")
@@ -49,7 +52,7 @@ public class WorkController {
             long authorId = json.get("author").getAsLong();
             Author author = authorRepository.findById(authorId);
             if (author == null) {
-                return responseError("author doesn't exist", HttpStatus.UNPROCESSABLE_ENTITY);
+                return errorResponse("author doesn't exist", defaultHeaders, HttpStatus.UNPROCESSABLE_ENTITY);
             }
             long workId = workRepository.nextId();
             String title = json.get("title").getAsString();
@@ -63,7 +66,8 @@ public class WorkController {
     public ResponseEntity<String> getWork(@PathVariable("id") long id) {
         Work work = workRepository.findById(id);
         if (work == null) {
-            return responseError("work with specified id doesn't exist yet", HttpStatus.UNPROCESSABLE_ENTITY);
+            return errorResponse("work with specified id doesn't exist yet", defaultHeaders,
+                    HttpStatus.UNPROCESSABLE_ENTITY);
         }
         JsonObject json = new JsonObject();
         json.add("id", new JsonPrimitive(work.getId()));
@@ -75,19 +79,86 @@ public class WorkController {
     public ResponseEntity<String> getDescription(@PathVariable("id") long id) {
         Work work = workRepository.findById(id);
         if (work == null) {
-            return responseError("work with specified id doesn't exist yet", HttpStatus.UNPROCESSABLE_ENTITY);
+            return errorResponse("work with specified id doesn't exist yet", defaultHeaders,
+                    HttpStatus.UNPROCESSABLE_ENTITY);
         }
         JsonObject json = new JsonObject();
         json.add("id", new JsonPrimitive(id));
-        json.add("title", new JsonPrimitive(work.getTitle()));
         json.add("description", new JsonPrimitive(work.getDescription().toString()));
         return new ResponseEntity<>(json.toString(), defaultHeaders, HttpStatus.OK);
     }
 
-    private ResponseEntity<String> responseError(String message, HttpStatus status) {
+    @GetMapping("{id}/authors")
+    public ResponseEntity<String> getAuthors(@PathVariable("id") long id) {
+        Work work = workRepository.findById(id);
+        if (work == null) {
+            return errorResponse("no such work with id: " + id, defaultHeaders,
+                    HttpStatus.UNPROCESSABLE_ENTITY);
+        }
         JsonObject json = new JsonObject();
-        json.add("error", new JsonPrimitive(message));
-        return new ResponseEntity<>(json.toString(), defaultHeaders, status);
+        JsonArray array = new JsonArray();
+        for (Author a : work.getAuthors()) {
+            JsonObject t = new JsonObject();
+            t.add("id", new JsonPrimitive(a.getId()));
+            t.add("firstName", new JsonPrimitive(a.getName().getFirstName()));
+            t.add("middleName", new JsonPrimitive(a.getName().getMiddleName()));
+            t.add("lastName", new JsonPrimitive(a.getName().getLastName()));
+            array.add(t);
+        }
+        json.add("authors", array);
+        return new ResponseEntity<>(json.toString(), defaultHeaders, HttpStatus.OK);
     }
 
+    @PutMapping("{id}/editing")
+    public ResponseEntity<String> editWork(@PathVariable("id") long id, ServletRequest req) {
+        try {
+            Work work = workRepository.findById(id);
+            if (work == null) {
+                return errorResponse("no such work with id: " + id, defaultHeaders,
+                        HttpStatus.UNPROCESSABLE_ENTITY);
+            }
+            JsonObject json;
+            try (BufferedReader reader = req.getReader()) {
+                json = jsonParser.parse(reader).getAsJsonObject();
+            }
+            if (json.has("authors")) {
+                JsonArray array = json.get("authors").getAsJsonArray();
+                compareAndEditAuthors(work, array);
+            }
+            String title = json.get("title").getAsString();
+            Text t = OrdinaryText.of(json.get("description").getAsString());
+            work.setDescription(t);
+            work.changeTitle(title);
+            workRepository.update(work);
+            return responseMessage("work has been updated", HttpStatus.OK);
+        } catch (Exception e) {
+            return errorResponse(e.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
+        }
+    }
+
+    /*
+     * Removes or adds author to work. The decision to remove or add is based on
+     * information that authorJson contains.
+     * The format of json array is next:
+     *   [
+     *     {"action":"remove", "id":"1"},
+     *     {"action":"add", "id":"2"}
+     *     and so on...
+     *   ]
+     *
+     */
+    private void compareAndEditAuthors(Work work, JsonArray authorsJson) {
+        for (JsonElement e : authorsJson) {
+            JsonObject o = e.getAsJsonObject();
+            if (o.get("action").getAsString().equals("add")) {
+                long id = o.get("id").getAsLong();
+                Author a = authorRepository.findById(id);
+                work.addAuthor(a);
+            } else {
+                long id = o.get("id").getAsLong();
+                Author a = authorRepository.findById(id);
+                work.removeAuthor(a);
+            }
+        }
+    }
 }

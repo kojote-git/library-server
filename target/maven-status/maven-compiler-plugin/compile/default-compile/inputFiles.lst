@@ -1,6 +1,6 @@
 /home/isaac/projects/java/lise/src/main/java/com/jkojote/libraryserver/application/ApplicationInitializer.java
 /home/isaac/projects/java/lise/src/main/java/com/jkojote/libraryserver/application/controllers/WorkController.java
 /home/isaac/projects/java/lise/src/main/java/com/jkojote/libraryserver/config/WebConfig.java
-/home/isaac/projects/java/lise/src/main/java/com/jkojote/libraryserver/Main.java
 /home/isaac/projects/java/lise/src/main/java/com/jkojote/libraryserver/config/MvcConfig.java
 /home/isaac/projects/java/lise/src/main/java/com/jkojote/libraryserver/application/controllers/AuthorController.java
+/home/isaac/projects/java/lise/src/main/java/com/jkojote/libraryserver/application/controllers/Util.java
