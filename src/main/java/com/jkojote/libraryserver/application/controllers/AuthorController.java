@@ -70,6 +70,7 @@ public class AuthorController {
         }
         JsonObject jsonObject = new JsonObject();
         Name name = author.getName();
+        jsonObject.add("id", new JsonPrimitive(id));
         jsonObject.add("firstName", new JsonPrimitive(name.getFirstName()));
         jsonObject.add("middleName", new JsonPrimitive(name.getMiddleName()));
         jsonObject.add("lastName", new JsonPrimitive(name.getLastName()));

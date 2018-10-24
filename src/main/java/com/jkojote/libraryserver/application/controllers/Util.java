@@ -19,7 +19,7 @@ public final class Util {
                                                        HttpStatus status) {
         JsonObject json = new JsonObject();
         json.add("error", new JsonPrimitive(message));
-        return new ResponseEntity<>(message, headers, status);
+        return new ResponseEntity<>(json.toString(), headers, status);
     }
 
     public static ResponseEntity<String> responseMessage(String message, HttpHeaders headers, HttpStatus status) {
