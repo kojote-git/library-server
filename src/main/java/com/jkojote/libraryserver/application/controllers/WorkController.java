@@ -2,7 +2,10 @@ package com.jkojote.libraryserver.application.controllers;
 
 import com.google.gson.*;
 import com.jkojote.library.domain.model.author.Author;
+import com.jkojote.library.domain.model.work.Subject;
 import com.jkojote.library.domain.model.work.Work;
+import com.jkojote.library.domain.shared.DomainArrayList;
+import com.jkojote.library.domain.shared.domain.DomainList;
 import com.jkojote.library.domain.shared.domain.DomainRepository;
 import com.jkojote.library.values.OrdinaryText;
 import com.jkojote.library.values.Text;
@@ -49,16 +52,26 @@ public class WorkController {
     public ResponseEntity<String> createWork(ServletRequest req) throws IOException {
         try (BufferedReader reader = req.getReader()) {
             JsonObject json = jsonParser.parse(reader).getAsJsonObject();
-            long authorId = json.get("author").getAsLong();
-            Author author = authorRepository.findById(authorId);
-            if (author == null) {
-                return errorResponse("author doesn't exist", defaultHeaders, HttpStatus.UNPROCESSABLE_ENTITY);
+            JsonArray authorsJson = json.getAsJsonArray("authors");
+            JsonArray subjectsJson = json.getAsJsonArray("subjects");
+            DomainList<Author> authors = new DomainArrayList<>();
+            for (JsonElement authorId : authorsJson) {
+                long id = authorId.getAsLong();
+                Author a = authorRepository.findById(id);
+                if (a == null)
+                    return errorResponse("no author with such id exists: " + id, HttpStatus.UNPROCESSABLE_ENTITY);
+                authors.add(a);
             }
             long workId = workRepository.nextId();
             String title = json.get("title").getAsString();
-            Work work = Work.create(workId, title, author);
+            String description = json.get("description").getAsString();
+            Work work = Work.create(workId, title, authors);
+            for (JsonElement subject : subjectsJson) {
+                work.addSubject(Subject.of(subject.getAsString()));
+            }
+            work.setDescription(OrdinaryText.of(description));
             workRepository.save(work);
-            return new ResponseEntity<>("{\"id\":\""+workId+"\"}", defaultHeaders, HttpStatus.CREATED);
+            return responseMessage("{\"id\":\""+workId+"\"}", HttpStatus.CREATED);
         }
     }
 
@@ -109,6 +122,22 @@ public class WorkController {
             array.add(t);
         }
         json.add("authors", array);
+        return new ResponseEntity<>(json.toString(), defaultHeaders, HttpStatus.OK);
+    }
+
+    @GetMapping("{id}/subjects")
+    @CrossOrigin
+    public ResponseEntity<String> getSubjects(@PathVariable("id") long id) {
+        Work work = workRepository.findById(id);
+        if (work == null) {
+            return errorResponse("no such work with id: " + id, HttpStatus.UNPROCESSABLE_ENTITY);
+        }
+        JsonObject json = new JsonObject();
+        JsonArray array = new JsonArray();
+        for (Subject s : work.getSubjects()) {
+            array.add(s.asString());
+        }
+        json.add("subjects", array);
         return new ResponseEntity<>(json.toString(), defaultHeaders, HttpStatus.OK);
     }
 
