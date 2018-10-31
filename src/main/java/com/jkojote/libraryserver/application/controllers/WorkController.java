@@ -4,8 +4,6 @@ import com.google.gson.*;
 import com.jkojote.library.domain.model.author.Author;
 import com.jkojote.library.domain.model.work.Subject;
 import com.jkojote.library.domain.model.work.Work;
-import com.jkojote.library.domain.shared.DomainArrayList;
-import com.jkojote.library.domain.shared.domain.DomainList;
 import com.jkojote.library.domain.shared.domain.DomainRepository;
 import com.jkojote.library.values.OrdinaryText;
 import com.jkojote.library.values.Text;
@@ -16,15 +14,18 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import static com.jkojote.library.domain.model.work.Work.WorkBuilder;
 import javax.servlet.ServletRequest;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.jkojote.libraryserver.application.controllers.Util.errorResponse;
 import static com.jkojote.libraryserver.application.controllers.Util.responseMessage;
 
 @RestController
-@RequestMapping("/work")
+@RequestMapping("/works")
 public class WorkController {
 
     private DomainRepository<Work> workRepository;
@@ -47,6 +48,22 @@ public class WorkController {
         defaultHeaders.set("Content-Type", "application/json");
     }
 
+    @GetMapping("/")
+    @CrossOrigin
+    public ResponseEntity<String> getAll() {
+        List<Work> works = workRepository.findAll();
+        JsonObject obj = new JsonObject();
+        JsonArray array = new JsonArray();
+        obj.add("works", array);
+        for (Work w : works) {
+            JsonObject json = new JsonObject();
+            json.add("id", new JsonPrimitive(w.getId()));
+            json.add("title", new JsonPrimitive(w.getTitle()));
+            array.add(new JsonObject());
+        }
+        return new ResponseEntity<>(obj.toString(), HttpStatus.OK);
+    }
+
     @PostMapping("creation")
     @CrossOrigin
     public ResponseEntity<String> createWork(ServletRequest req) throws IOException {
@@ -54,7 +71,7 @@ public class WorkController {
             JsonObject json = jsonParser.parse(reader).getAsJsonObject();
             JsonArray authorsJson = json.getAsJsonArray("authors");
             JsonArray subjectsJson = json.getAsJsonArray("subjects");
-            DomainList<Author> authors = new DomainArrayList<>();
+            List<Author> authors = new ArrayList<>();
             for (JsonElement authorId : authorsJson) {
                 long id = authorId.getAsLong();
                 Author a = authorRepository.findById(id);
@@ -65,11 +82,15 @@ public class WorkController {
             long workId = workRepository.nextId();
             String title = json.get("title").getAsString();
             String description = json.get("description").getAsString();
-            Work work = Work.create(workId, title, authors);
+            Work work = WorkBuilder.aWork()
+                    .withId(workId)
+                    .withTitle(title)
+                    .withAuthors(authors)
+                    .withDescription(OrdinaryText.of(description))
+                    .build();
             for (JsonElement subject : subjectsJson) {
                 work.addSubject(Subject.of(subject.getAsString()));
             }
-            work.setDescription(OrdinaryText.of(description));
             workRepository.save(work);
             return responseMessage("{\"id\":\""+workId+"\"}", HttpStatus.CREATED);
         }
@@ -158,6 +179,10 @@ public class WorkController {
                 JsonArray array = json.get("authors").getAsJsonArray();
                 compareAndEditAuthors(work, array);
             }
+            if (json.has("subjects")) {
+                JsonArray array = json.get("subjects").getAsJsonArray();
+                compareAndEditSubjects(work, array);
+            }
             String title = json.get("title").getAsString();
             Text t = OrdinaryText.of(json.get("description").getAsString());
             work.setDescription(t);
@@ -167,6 +192,16 @@ public class WorkController {
         } catch (Exception e) {
             return errorResponse(e.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
         }
+    }
+
+    @DeleteMapping("{id}/deleting")
+    @CrossOrigin
+    public ResponseEntity<String> delete(@PathVariable("id") long id) {
+        Work work = workRepository.findById(id);
+        if (work == null)
+            return errorResponse("work with such id"+id+"doesn't exists", HttpStatus.UNPROCESSABLE_ENTITY);
+        workRepository.remove(work);
+        return responseMessage("work has been successfully deleted", HttpStatus.OK);
     }
 
     /*
@@ -191,6 +226,18 @@ public class WorkController {
                 long id = o.get("id").getAsLong();
                 Author a = authorRepository.findById(id);
                 work.removeAuthor(a);
+            }
+        }
+    }
+
+    private void compareAndEditSubjects(Work work, JsonArray subjectsJson) {
+        for (JsonElement e: subjectsJson) {
+            JsonObject o = e.getAsJsonObject();
+            Subject s = Subject.of(o.get("subject").getAsString());
+            if (o.get("action").getAsString().equals("add")) {
+                work.addSubject(s);
+            } else {
+                work.removeSubject(s);
             }
         }
     }

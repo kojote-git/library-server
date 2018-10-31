@@ -19,7 +19,7 @@ import java.io.IOException;
 import static com.jkojote.libraryserver.application.controllers.Util.*;
 
 @RestController
-@RequestMapping("/author")
+@RequestMapping("/authors")
 @SuppressWarnings("unchecked")
 public class AuthorController {
 
@@ -123,6 +123,16 @@ public class AuthorController {
         } catch (Exception e) {
             return errorResponse(e.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
         }
+    }
+
+    @DeleteMapping("{id}/deleting")
+    @CrossOrigin
+    public ResponseEntity<String> deleteAuthor(@PathVariable("id") long id) {
+        Author a = authorRepository.findById(id);
+        if (a == null)
+            return errorResponse("no such author with id " + id, HttpStatus.UNPROCESSABLE_ENTITY);
+        authorRepository.remove(a);
+        return responseMessage("author's been deleted", HttpStatus.OK);
     }
 
     private void compareAndEditWorks(Author author, JsonArray works) {
