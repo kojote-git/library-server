@@ -5,6 +5,7 @@ import com.jkojote.library.domain.model.author.Author;
 import com.jkojote.library.domain.model.work.Work;
 import com.jkojote.library.domain.shared.domain.DomainRepository;
 import com.jkojote.library.values.Name;
+import com.jkojote.libraryserver.application.JsonConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
@@ -27,6 +28,8 @@ public class AuthorController {
 
     private DomainRepository<Work> workRepository;
 
+    private JsonConverter<Author> authorJsonConverter;
+
     private JsonParser jsonParser;
 
     @Autowired
@@ -34,10 +37,13 @@ public class AuthorController {
             @Qualifier("authorRepository")
             DomainRepository<Author> authorRepository,
             @Qualifier("workRepository")
-            DomainRepository<Work> workRepository) {
+            DomainRepository<Work> workRepository,
+            @Qualifier("authorJsonConverter")
+            JsonConverter<Author> authorJsonConverter) {
         this.authorRepository = authorRepository;
         this.workRepository = workRepository;
         this.jsonParser = new JsonParser();
+        this.authorJsonConverter = authorJsonConverter;
     }
 
     @PostMapping("creation")
@@ -48,11 +54,11 @@ public class AuthorController {
         headers.set("Content-Type", "application/json");
         try (BufferedReader reader = req.getReader()) {
             JsonObject json = jsonParser.parse(reader).getAsJsonObject();
+            json.add("id", new JsonPrimitive(id));
             String firstName = json.get("firstName").getAsString();
             String middleName = json.get("middleName").getAsString();
             String lastName = json.get("lastName").getAsString();
             Name name = Name.of(firstName, middleName, lastName);
-
             Author author = Author.createNew(id, name);
             authorRepository.save(author);
             return new ResponseEntity<>("{\"id\":"+id+"}", headers, HttpStatus.CREATED);
@@ -68,13 +74,8 @@ public class AuthorController {
         if (author == null) {
             return errorResponse("no author with such id: " + id, headers, HttpStatus.UNPROCESSABLE_ENTITY);
         }
-        JsonObject jsonObject = new JsonObject();
-        Name name = author.getName();
-        jsonObject.add("id", new JsonPrimitive(id));
-        jsonObject.add("firstName", new JsonPrimitive(name.getFirstName()));
-        jsonObject.add("middleName", new JsonPrimitive(name.getMiddleName()));
-        jsonObject.add("lastName", new JsonPrimitive(name.getLastName()));
-        return new ResponseEntity<>(jsonObject.toString(), headers, HttpStatus.OK);
+        return new ResponseEntity<>(authorJsonConverter.convertToString(author),
+                headers, HttpStatus.OK);
     }
 
     @GetMapping("{id}/works")

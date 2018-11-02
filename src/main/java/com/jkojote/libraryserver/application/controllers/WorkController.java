@@ -7,6 +7,7 @@ import com.jkojote.library.domain.model.work.Work;
 import com.jkojote.library.domain.shared.domain.DomainRepository;
 import com.jkojote.library.values.OrdinaryText;
 import com.jkojote.library.values.Text;
+import com.jkojote.libraryserver.application.JsonConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
@@ -36,15 +37,25 @@ public class WorkController {
 
     private JsonParser jsonParser;
 
+    private JsonConverter<Work> workJsonConverter;
+
+    private JsonConverter<Author> authorJsonConverter;
+
     @Autowired
     public WorkController(@Qualifier("workRepository")
                           DomainRepository<Work> workRepository,
                           @Qualifier("authorRepository")
-                          DomainRepository<Author> authorRepository) {
+                          DomainRepository<Author> authorRepository,
+                          @Qualifier("workJsonConverter")
+                          JsonConverter<Work> workJsonConverter,
+                          @Qualifier("authorJsonConverter")
+                          JsonConverter<Author> authorJsonConverter) {
         this.authorRepository = authorRepository;
         this.workRepository = workRepository;
         this.jsonParser = new JsonParser();
         this.defaultHeaders = new HttpHeaders();
+        this.workJsonConverter = workJsonConverter;
+        this.authorJsonConverter = authorJsonConverter;
         defaultHeaders.set("Content-Type", "application/json");
     }
 
@@ -56,10 +67,7 @@ public class WorkController {
         JsonArray array = new JsonArray();
         obj.add("works", array);
         for (Work w : works) {
-            JsonObject json = new JsonObject();
-            json.add("id", new JsonPrimitive(w.getId()));
-            json.add("title", new JsonPrimitive(w.getTitle()));
-            array.add(new JsonObject());
+            array.add(workJsonConverter.convertToJson(w));
         }
         return new ResponseEntity<>(obj.toString(), HttpStatus.OK);
     }
@@ -104,10 +112,9 @@ public class WorkController {
             return errorResponse("work with specified id doesn't exist yet", defaultHeaders,
                     HttpStatus.UNPROCESSABLE_ENTITY);
         }
-        JsonObject json = new JsonObject();
-        json.add("id", new JsonPrimitive(work.getId()));
-        json.add("title", new JsonPrimitive(work.getTitle()));
-        return new ResponseEntity<>(json.toString(), defaultHeaders, HttpStatus.OK);
+
+        return new ResponseEntity<>(workJsonConverter.convertToString(work),
+                defaultHeaders, HttpStatus.OK);
     }
 
     @GetMapping("{id}/description")
@@ -135,12 +142,7 @@ public class WorkController {
         JsonObject json = new JsonObject();
         JsonArray array = new JsonArray();
         for (Author a : work.getAuthors()) {
-            JsonObject t = new JsonObject();
-            t.add("id", new JsonPrimitive(a.getId()));
-            t.add("firstName", new JsonPrimitive(a.getName().getFirstName()));
-            t.add("middleName", new JsonPrimitive(a.getName().getMiddleName()));
-            t.add("lastName", new JsonPrimitive(a.getName().getLastName()));
-            array.add(t);
+            array.add(authorJsonConverter.convertToJson(a));
         }
         json.add("authors", array);
         return new ResponseEntity<>(json.toString(), defaultHeaders, HttpStatus.OK);

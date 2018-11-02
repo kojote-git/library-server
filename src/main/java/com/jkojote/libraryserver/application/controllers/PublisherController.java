@@ -4,6 +4,7 @@ import com.google.gson.*;
 import com.jkojote.library.domain.model.book.Book;
 import com.jkojote.library.domain.model.publisher.Publisher;
 import com.jkojote.library.domain.shared.domain.DomainRepository;
+import com.jkojote.libraryserver.application.JsonConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
@@ -27,16 +28,26 @@ public class PublisherController {
 
     private DomainRepository<Book> bookRepository;
 
+    private JsonConverter<Publisher> publisherJsonConverter;
+
+    private JsonConverter<Book> bookJsonConverter;
+
     private JsonParser jsonParser;
 
     @Autowired
     public PublisherController(@Qualifier("publisherRepository")
                                DomainRepository<Publisher> publisherRepository,
                                @Qualifier("bookRepository")
-                               DomainRepository<Book> bookRepository) {
+                               DomainRepository<Book> bookRepository,
+                               @Qualifier("publisherJsonConverter")
+                               JsonConverter<Publisher> publisherJsonConverter,
+                               @Qualifier("bookJsonConverter")
+                               JsonConverter<Book> bookJsonConverter) {
         this.publisherRepository = publisherRepository;
         this.bookRepository = bookRepository;
         this.jsonParser = new JsonParser();
+        this.publisherJsonConverter = publisherJsonConverter;
+        this.bookJsonConverter = bookJsonConverter;
     }
 
     @GetMapping("/")
@@ -47,10 +58,7 @@ public class PublisherController {
         JsonArray array = new JsonArray();
         obj.add("publishers", array);
         for (Publisher p : publishers) {
-            JsonObject json = new JsonObject();
-            json.add("id", new JsonPrimitive(p.getId()));
-            json.add("name", new JsonPrimitive(p.getName()));
-            array.add(json);
+            array.add(publisherJsonConverter.convertToJson(p));
         }
         return new ResponseEntity<>(obj.toString(), HttpStatus.OK);
     }
@@ -61,10 +69,8 @@ public class PublisherController {
         Publisher publisher = publisherRepository.findById(id);
         if (publisher == null)
             return errorResponse("no such publisher with id " + id, HttpStatus.UNPROCESSABLE_ENTITY);
-        JsonObject json = new JsonObject();
-        json.add("id", new JsonPrimitive(publisher.getId()));
-        json.add("name", new JsonPrimitive(publisher.getName()));
-        return new ResponseEntity<>(json.toString(), HttpStatus.OK);
+        String json = publisherJsonConverter.convertToString(publisher);
+        return new ResponseEntity<>(json, HttpStatus.OK);
     }
 
     @PostMapping("creation")
@@ -101,11 +107,7 @@ public class PublisherController {
         JsonObject responseJson = new JsonObject();
         JsonArray booksArray = new JsonArray();
         for (Book b : books) {
-            JsonObject bookJson = new JsonObject();
-            bookJson.add("id", new JsonPrimitive(b.getId()));
-            bookJson.add("title", new JsonPrimitive(b.getBasedOn().getTitle()));
-            bookJson.add("edition", new JsonPrimitive(b.getEdition()));
-            booksArray.add(bookJson);
+            booksArray.add(bookJsonConverter.convertToJson(b));
         }
         responseJson.add("books", booksArray);
         return new ResponseEntity<>(responseJson.toString(), HttpStatus.OK);
