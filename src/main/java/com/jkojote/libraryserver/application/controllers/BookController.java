@@ -93,10 +93,9 @@ public class BookController {
         for (BookInstance bi : instances) {
             array.add(bookInstanceJsonConverter.convertToJson(bi));
         }
-        response.add("bookInstance", array);
+        response.add("instances", array);
         return new ResponseEntity<>(response.toString(), HttpStatus.OK);
     }
-
 
     @PostMapping("creation")
     @CrossOrigin
@@ -115,7 +114,7 @@ public class BookController {
             long id = bookRepository.nextId();
             Book book = new Book(id, work, publisher, edition, new ArrayList<>());
             bookRepository.save(book);
-            return responseMessage("book created with id: " + id, HttpStatus.CREATED);
+            return new ResponseEntity<>("{\"id\":"+id+"}", HttpStatus.CREATED);
         }
     }
 
