@@ -128,6 +128,11 @@ public class BookController {
         try (BufferedReader reader = req.getReader()) {
             JsonObject json = jsonParser.parse(reader).getAsJsonObject();
             int edition = json.get("edition").getAsInt();
+            long publisherId = json.get("publisherId").getAsLong();
+            Publisher publisher = publisherRepository.findById(publisherId);
+            if (publisher == null)
+                return errorResponse("no such publisher with id: " + publisherId, HttpStatus.UNPROCESSABLE_ENTITY);
+            book.setPublisher(publisher);
             book.setEdition(edition);
             bookRepository.update(book);
         }
