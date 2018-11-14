@@ -1,0 +1,58 @@
+body {
+    background-color: rgb(252, 252, 252);
+}
+
+.entity-form {
+    max-width: 640px;
+    margin: 10px auto;
+    background-color: rgb(254, 254, 254);
+    border: 1px solid rgb(230, 230, 230);
+    border-radius: 1px;
+}
+
+.entity-attribute {
+    max-width: 480px;
+    margin: 0 auto;
+}
+
+.submit-btn {
+    display: block;
+    padding: 5px;
+    max-width: 110px;
+    margin: 5px auto;
+}
+
+.entity-form-section {
+    padding: 5px 10px;
+}
+
+.entity-form-header {
+    background-color: rgb(246, 246, 246);
+    text-align: center;
+    font-size: 1.5em;
+}
+
+.hidden {
+    display: none;
+}
+
+.caret-wrapper {
+    display: inline;
+    height: 24px;
+    width: 24px;
+    cursor: pointer;
+}
+
+.caret {
+    height: 24px;
+    width: 24px;
+}
+
+.associations-header {
+    text-align: center;
+    font-size: 22px;
+}
+
+.associations {
+    padding: 5px;
+}

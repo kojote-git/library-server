@@ -1,10 +1,11 @@
-package com.jkojote.libraryserver.application.controllers;
+package com.jkojote.libraryserver.application.controllers.rest;
 
 import com.google.gson.*;
 import com.jkojote.library.domain.model.book.Book;
 import com.jkojote.library.domain.model.publisher.Publisher;
 import com.jkojote.library.domain.shared.domain.DomainRepository;
 import com.jkojote.libraryserver.application.JsonConverter;
+import com.jkojote.libraryserver.application.security.AuthorizationRequired;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
@@ -21,7 +22,7 @@ import static com.jkojote.libraryserver.application.controllers.Util.errorRespon
 import static com.jkojote.libraryserver.application.controllers.Util.responseMessage;
 
 @RestController
-@RequestMapping("publishers")
+@RequestMapping("/rest/publishers")
 public class PublisherController {
 
     private DomainRepository<Publisher> publisherRepository;
@@ -73,8 +74,8 @@ public class PublisherController {
         return new ResponseEntity<>(json, HttpStatus.OK);
     }
 
+    @AuthorizationRequired
     @PostMapping("creation")
-    @CrossOrigin
     public ResponseEntity<String> creation(ServletRequest req) throws IOException {
         try (BufferedReader reader = req.getReader()) {
             JsonObject json = jsonParser.parse(reader).getAsJsonObject();
@@ -86,8 +87,8 @@ public class PublisherController {
         return responseMessage("publisher's been created", HttpStatus.CREATED);
     }
 
+    @AuthorizationRequired
     @DeleteMapping("{id}/deleting")
-    @CrossOrigin
     public ResponseEntity<String> deleting(@PathVariable("id") long id) {
         Publisher p = publisherRepository.findById(id);
         if (p == null)
@@ -113,8 +114,8 @@ public class PublisherController {
         return new ResponseEntity<>(responseJson.toString(), HttpStatus.OK);
     }
 
+    @AuthorizationRequired
     @PutMapping("{id}/editing")
-    @CrossOrigin
     public ResponseEntity<String> editPublisher(@PathVariable("id") long id, ServletRequest req)
     throws IOException {
         Publisher publisher = publisherRepository.findById(id);

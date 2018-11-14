@@ -1,4 +1,4 @@
-package com.jkojote.libraryserver.application.controllers;
+package com.jkojote.libraryserver.application.controllers.rest;
 
 import com.google.gson.*;
 import com.jkojote.library.domain.model.author.Author;
@@ -6,6 +6,7 @@ import com.jkojote.library.domain.model.work.Work;
 import com.jkojote.library.domain.shared.domain.DomainRepository;
 import com.jkojote.library.values.Name;
 import com.jkojote.libraryserver.application.JsonConverter;
+import com.jkojote.libraryserver.application.security.AuthorizationRequired;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
@@ -14,13 +15,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.io.IOException;
 
 import static com.jkojote.libraryserver.application.controllers.Util.*;
 
 @RestController
-@RequestMapping("/authors")
+@RequestMapping("/rest/authors")
 @SuppressWarnings("unchecked")
 public class AuthorController {
 
@@ -29,6 +31,8 @@ public class AuthorController {
     private DomainRepository<Work> workRepository;
 
     private JsonConverter<Author> authorJsonConverter;
+
+    private JsonConverter<Work> workJsonConverter;
 
     private JsonParser jsonParser;
 
@@ -39,16 +43,19 @@ public class AuthorController {
             @Qualifier("workRepository")
             DomainRepository<Work> workRepository,
             @Qualifier("authorJsonConverter")
-            JsonConverter<Author> authorJsonConverter) {
+            JsonConverter<Author> authorJsonConverter,
+            @Qualifier("workJsonConverter")
+            JsonConverter<Work> workJsonConverter) {
         this.authorRepository = authorRepository;
         this.workRepository = workRepository;
         this.jsonParser = new JsonParser();
         this.authorJsonConverter = authorJsonConverter;
+        this.workJsonConverter = workJsonConverter;
     }
 
+    @AuthorizationRequired
     @PostMapping("creation")
-    @CrossOrigin
-    public ResponseEntity<String> creation(ServletRequest req) throws IOException {
+    public ResponseEntity<String> creation(HttpServletRequest req) throws IOException {
         long id = authorRepository.nextId();
         HttpHeaders headers = new HttpHeaders();
         headers.set("Content-Type", "application/json");
@@ -90,18 +97,15 @@ public class AuthorController {
         JsonObject json = new JsonObject();
         JsonArray array = new JsonArray();
         for (Work w : author.getWorks()) {
-            JsonObject t = new JsonObject();
-            t.add("id", new JsonPrimitive(w.getId()));
-            t.add("title", new JsonPrimitive(w.getTitle()));
-            array.add(t);
+            array.add(workJsonConverter.convertToJson(w));
         }
         json.add("works", array);
         return new ResponseEntity<>(json.toString(), headers, HttpStatus.OK);
     }
 
+    @AuthorizationRequired
     @PutMapping("{id}/editing")
-    @CrossOrigin
-    public ResponseEntity<String> editAuthor(@PathVariable("id") long id, ServletRequest req) {
+    public ResponseEntity<String> editAuthor(@PathVariable("id") long id, HttpServletRequest req) {
         Author a = authorRepository.findById(id);
         if (a == null) {
             return errorResponse("no author with such id:" + id, HttpStatus.UNPROCESSABLE_ENTITY);
@@ -126,9 +130,9 @@ public class AuthorController {
         }
     }
 
+    @AuthorizationRequired
     @DeleteMapping("{id}/deleting")
-    @CrossOrigin
-    public ResponseEntity<String> deleteAuthor(@PathVariable("id") long id) {
+    public ResponseEntity<String> deleteAuthor(@PathVariable("id") long id, HttpServletRequest req) {
         Author a = authorRepository.findById(id);
         if (a == null)
             return errorResponse("no such author with id " + id, HttpStatus.UNPROCESSABLE_ENTITY);

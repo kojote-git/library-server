@@ -1,4 +1,4 @@
-package com.jkojote.libraryserver.application.controllers;
+package com.jkojote.libraryserver.application.controllers.rest;
 
 import com.google.gson.*;
 import com.jkojote.library.domain.model.author.Author;
@@ -8,6 +8,7 @@ import com.jkojote.library.domain.shared.domain.DomainRepository;
 import com.jkojote.library.values.OrdinaryText;
 import com.jkojote.library.values.Text;
 import com.jkojote.libraryserver.application.JsonConverter;
+import com.jkojote.libraryserver.application.security.AuthorizationRequired;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import static com.jkojote.library.domain.model.work.Work.WorkBuilder;
 import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,7 +28,7 @@ import static com.jkojote.libraryserver.application.controllers.Util.errorRespon
 import static com.jkojote.libraryserver.application.controllers.Util.responseMessage;
 
 @RestController
-@RequestMapping("/works")
+@RequestMapping("/rest/works")
 public class WorkController {
 
     private DomainRepository<Work> workRepository;
@@ -72,9 +74,9 @@ public class WorkController {
         return new ResponseEntity<>(obj.toString(), HttpStatus.OK);
     }
 
+    @AuthorizationRequired
     @PostMapping("creation")
-    @CrossOrigin
-    public ResponseEntity<String> createWork(ServletRequest req) throws IOException {
+    public ResponseEntity<String> createWork(HttpServletRequest req) throws IOException {
         try (BufferedReader reader = req.getReader()) {
             JsonObject json = jsonParser.parse(reader).getAsJsonObject();
             JsonArray authorsJson = json.getAsJsonArray("authors");
@@ -164,9 +166,9 @@ public class WorkController {
         return new ResponseEntity<>(json.toString(), defaultHeaders, HttpStatus.OK);
     }
 
+    @AuthorizationRequired
     @PutMapping("{id}/editing")
-    @CrossOrigin
-    public ResponseEntity<String> editWork(@PathVariable("id") long id, ServletRequest req) {
+    public ResponseEntity<String> editWork(@PathVariable("id") long id, HttpServletRequest req) {
         try {
             Work work = workRepository.findById(id);
             if (work == null) {
@@ -196,8 +198,8 @@ public class WorkController {
         }
     }
 
+    @AuthorizationRequired
     @DeleteMapping("{id}/deleting")
-    @CrossOrigin
     public ResponseEntity<String> delete(@PathVariable("id") long id) {
         Work work = workRepository.findById(id);
         if (work == null)

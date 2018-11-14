@@ -1,4 +1,4 @@
-package com.jkojote.libraryserver.application.controllers;
+package com.jkojote.libraryserver.application.controllers.rest;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -9,13 +9,14 @@ import com.jkojote.library.domain.model.publisher.Publisher;
 import com.jkojote.library.domain.model.work.Work;
 import com.jkojote.library.domain.shared.domain.DomainRepository;
 import com.jkojote.libraryserver.application.JsonConverter;
+import com.jkojote.libraryserver.application.security.AuthorizationRequired;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -97,9 +98,10 @@ public class BookController {
         return new ResponseEntity<>(response.toString(), HttpStatus.OK);
     }
 
+    @AuthorizationRequired
     @PostMapping("creation")
     @CrossOrigin
-    public ResponseEntity<String> creation(ServletRequest req) throws IOException {
+    public ResponseEntity<String> creation(HttpServletRequest req) throws IOException {
         try (BufferedReader reader = req.getReader()) {
             JsonObject json = jsonParser.parse(reader).getAsJsonObject();
             long publisherId = json.get("publisherId").getAsLong();
@@ -118,9 +120,10 @@ public class BookController {
         }
     }
 
+    @AuthorizationRequired
     @PutMapping("{id}/editing")
     @CrossOrigin
-    public ResponseEntity<String> editing(@PathVariable("id") long id, ServletRequest req)
+    public ResponseEntity<String> editing(@PathVariable("id") long id, HttpServletRequest req)
     throws IOException {
         Book book = bookRepository.findById(id);
         if (book == null)
@@ -139,9 +142,10 @@ public class BookController {
         return responseMessage("book's been successfully updated", HttpStatus.OK);
     }
 
+    @AuthorizationRequired
     @DeleteMapping("{id}/deleting")
     @CrossOrigin
-    public ResponseEntity<String> deleting(@PathVariable("id") long id) {
+    public ResponseEntity<String> deleting(@PathVariable("id") long id, HttpServletRequest req) {
         Book book = bookRepository.findById(id);
         if (book == null)
             return errorResponse("no such book with id: "+id, HttpStatus.UNPROCESSABLE_ENTITY);
