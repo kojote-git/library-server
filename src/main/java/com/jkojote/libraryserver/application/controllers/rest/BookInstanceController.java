@@ -74,7 +74,7 @@ public class BookInstanceController {
     throws IOException {
         try (OutputStream out = resp.getOutputStream()) {
             BookInstance bi = bookInstanceRepository.findById(id);
-            if (checkBookInstanceExists(id, resp, out, bi))
+            if (!checkBookInstanceExists(id, resp, out, bi))
                 return;
             out.write(bi.getFile().asBytes());
             out.flush();
@@ -87,9 +87,10 @@ public class BookInstanceController {
     throws IOException {
         try (OutputStream out = resp.getOutputStream()){
             BookInstance bi = bookInstanceRepository.findById(id);
-            if (checkBookInstanceExists(id, resp, out, bi))
+            if (!checkBookInstanceExists(id, resp, out, bi))
                 return;
             out.write(bi.getCover().asBytes());
+            resp.setHeader("Content-Type", "images/*");
             out.flush();
         }
     }
@@ -99,9 +100,9 @@ public class BookInstanceController {
             resp.setStatus(404);
             out.write(("no such bookInstance with id" + id).getBytes());
             out.flush();
-            return true;
+            return false;
         }
-        return false;
+        return true;
     }
 
     @AuthorizationRequired

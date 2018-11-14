@@ -36,7 +36,6 @@ public class MultiReadHttpServletRequest extends HttpServletRequestWrapper {
         IOUtils.copy(super.getInputStream(), cachedBytes);
     }
 
-    /* An inputstream which reads the cached request body */
     public class CachedServletInputStream extends ServletInputStream {
         private ByteArrayInputStream input;
 
