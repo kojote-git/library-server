@@ -60,6 +60,7 @@ public class AdminController {
             return Util.errorResponse("wrong credentials", UNAUTHORIZED);
         String accessToken = Util.randomAlphaNumeric();
         authorizationService.setToken(login, accessToken);
+        resp.addHeader("Access-token", accessToken);
         resp.addCookie(new Cookie("accessToken", accessToken));
         resp.addCookie(new Cookie("login", login));
         return new ResponseEntity<>("OK", OK);
@@ -77,33 +78,4 @@ public class AdminController {
         return new ResponseEntity<>("ok", OK);
     }
 
-    @GetMapping("authors/{id}")
-    @AuthorizationRequired
-    public ModelAndView authorEditing(@PathVariable("id") long id, HttpServletRequest req) {
-        Author author = authorRepository.findById(id);
-        ModelAndView modelAndView = new ModelAndView();
-        if (author == null) {
-            modelAndView.setStatus(HttpStatus.NOT_FOUND);
-            modelAndView.setViewName("not-found");
-            return modelAndView;
-        }
-        modelAndView.setStatus(HttpStatus.OK);
-        modelAndView.addObject("author", new AuthorView(author));
-        modelAndView.setViewName("author/author");
-        return modelAndView;
-    }
-
-    @GetMapping("authors")
-    @AuthorizationRequired
-    public ModelAndView authors(HttpServletRequest req) {
-        List<Author> authors = authorRepository.findAll();
-        List<AuthorView> views = new ArrayList<>();
-        ModelAndView modelAndView = new ModelAndView();
-        for (Author a : authors) {
-            views.add(new AuthorView(a));
-        }
-        modelAndView.addObject("authors", views);
-        modelAndView.setViewName("author/authors");
-        return modelAndView;
-    }
 }

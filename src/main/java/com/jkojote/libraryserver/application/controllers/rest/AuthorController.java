@@ -6,6 +6,7 @@ import com.jkojote.library.domain.model.work.Work;
 import com.jkojote.library.domain.shared.domain.DomainRepository;
 import com.jkojote.library.values.Name;
 import com.jkojote.libraryserver.application.JsonConverter;
+import com.jkojote.libraryserver.application.exceptions.MalformedRequestException;
 import com.jkojote.libraryserver.application.security.AuthorizationRequired;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -62,13 +63,19 @@ public class AuthorController {
         try (BufferedReader reader = req.getReader()) {
             JsonObject json = jsonParser.parse(reader).getAsJsonObject();
             json.add("id", new JsonPrimitive(id));
+            validateCreationRequestBody(json);
             String firstName = json.get("firstName").getAsString();
             String middleName = json.get("middleName").getAsString();
             String lastName = json.get("lastName").getAsString();
             Name name = Name.of(firstName, middleName, lastName);
-            Author author = Author.createNew(id, name);
+            Author author = Author.AuthorBuilder.anAuthor()
+                    .withId(id)
+                    .withName(name)
+                    .build();
             authorRepository.save(author);
             return new ResponseEntity<>("{\"id\":"+id+"}", headers, HttpStatus.CREATED);
+        } catch (MalformedRequestException e) {
+            return errorResponse(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -118,6 +125,7 @@ public class AuthorController {
             if (json.has("works")) {
                 compareAndEditWorks(a, json.get("works").getAsJsonArray());
             }
+            validateEditingRequestBody(json);
             String firstName = json.get("firstName").getAsString(),
                    middleName = json.get("middleName").getAsString(),
                    lastName  = json.get("lastName").getAsString();
@@ -125,9 +133,20 @@ public class AuthorController {
             a.setName(newName);
             authorRepository.update(a);
             return responseMessage("author has been updated", HttpStatus.OK);
+        } catch (MalformedRequestException e1) {
+            return errorResponse(e1.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             return errorResponse(e.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
         }
+    }
+
+    private void validateEditingRequestBody(JsonObject json) {
+        if (!json.has("firstName") || !json.has("middleName") || !json.has("lastName"))
+            throw new MalformedRequestException("request body is malformed");
+    }
+
+    private void validateCreationRequestBody(JsonObject jsonObject) {
+        validateEditingRequestBody(jsonObject);
     }
 
     @AuthorizationRequired

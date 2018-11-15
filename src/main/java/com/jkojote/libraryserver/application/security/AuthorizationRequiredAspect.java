@@ -78,12 +78,12 @@ public class AuthorizationRequiredAspect {
         return req;
     }
 
-    private void authorize(HttpServletRequest request) {
-        String login = request.getHeader("Login");
-        String password = request.getHeader("Password");
-        if (login == null || password == null)
+    private void authorize(HttpServletRequest req) {
+        String login = req.getHeader("Login");
+        String accessToken = req.getHeader("Access-token");
+        if (login == null || accessToken == null)
             throw new AuthorizationException("no credentials present", UNAUTHORIZED);
-        if (!authorizationService.authorize(login, password))
+        if (!authorizationService.authorizeWithToken(login, accessToken))
             throw new AuthorizationException("wrong credentials", UNAUTHORIZED);
     }
 
