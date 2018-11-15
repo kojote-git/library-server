@@ -5,6 +5,7 @@ import com.jkojote.library.domain.model.book.Book;
 import com.jkojote.library.domain.model.publisher.Publisher;
 import com.jkojote.library.domain.shared.domain.DomainRepository;
 import com.jkojote.libraryserver.application.JsonConverter;
+import com.jkojote.libraryserver.application.exceptions.MalformedRequestException;
 import com.jkojote.libraryserver.application.security.AuthorizationRequired;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -74,21 +75,24 @@ public class PublisherController {
         return new ResponseEntity<>(json, HttpStatus.OK);
     }
 
-    @AuthorizationRequired
     @PostMapping("creation")
+    @AuthorizationRequired
     public ResponseEntity<String> creation(ServletRequest req) throws IOException {
         try (BufferedReader reader = req.getReader()) {
             JsonObject json = jsonParser.parse(reader).getAsJsonObject();
+            validateCreationRequestBody(json);
             String name = json.get("name").getAsString();
             long id = publisherRepository.nextId();
             Publisher publisher = new Publisher(id, name, new ArrayList<>());
             publisherRepository.save(publisher);
+        } catch (MalformedRequestException e) {
+            return errorResponse(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
         return responseMessage("publisher's been created", HttpStatus.CREATED);
     }
 
-    @AuthorizationRequired
     @DeleteMapping("{id}/deleting")
+    @AuthorizationRequired
     public ResponseEntity<String> deleting(@PathVariable("id") long id) {
         Publisher p = publisherRepository.findById(id);
         if (p == null)
@@ -114,8 +118,8 @@ public class PublisherController {
         return new ResponseEntity<>(responseJson.toString(), HttpStatus.OK);
     }
 
-    @AuthorizationRequired
     @PutMapping("{id}/editing")
+    @AuthorizationRequired
     public ResponseEntity<String> editPublisher(@PathVariable("id") long id, ServletRequest req)
     throws IOException {
         Publisher publisher = publisherRepository.findById(id);
@@ -123,6 +127,7 @@ public class PublisherController {
             return errorResponse("no such publisher with id " + id, HttpStatus.UNPROCESSABLE_ENTITY);
         try (BufferedReader reader = req.getReader()) {
             JsonObject reqJson = jsonParser.parse(reader).getAsJsonObject();
+            validateEditingRequestBody(reqJson);
             String name = reqJson.get("name").getAsString();
             publisher.setName(name);
             if (reqJson.has("books")) {
@@ -131,7 +136,18 @@ public class PublisherController {
             }
             publisherRepository.update(publisher);
             return responseMessage("publisher's been updated", HttpStatus.OK);
+        } catch (MalformedRequestException e) {
+            return errorResponse(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
+    }
+
+    private void validateCreationRequestBody(JsonObject json) {
+        if (!json.has("name"))
+            throw new MalformedRequestException();
+    }
+
+    private void validateEditingRequestBody(JsonObject json) {
+        validateCreationRequestBody(json);
     }
 
     //TODO implement this later

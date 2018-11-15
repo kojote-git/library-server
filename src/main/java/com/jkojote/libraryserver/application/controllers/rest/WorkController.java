@@ -8,6 +8,7 @@ import com.jkojote.library.domain.shared.domain.DomainRepository;
 import com.jkojote.library.values.OrdinaryText;
 import com.jkojote.library.values.Text;
 import com.jkojote.libraryserver.application.JsonConverter;
+import com.jkojote.libraryserver.application.exceptions.MalformedRequestException;
 import com.jkojote.libraryserver.application.security.AuthorizationRequired;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -17,7 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import static com.jkojote.library.domain.model.work.Work.WorkBuilder;
-import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -79,6 +79,7 @@ public class WorkController {
     public ResponseEntity<String> createWork(HttpServletRequest req) throws IOException {
         try (BufferedReader reader = req.getReader()) {
             JsonObject json = jsonParser.parse(reader).getAsJsonObject();
+            validateCreationRequestBody(json);
             JsonArray authorsJson = json.getAsJsonArray("authors");
             JsonArray subjectsJson = json.getAsJsonArray("subjects");
             List<Author> authors = new ArrayList<>();
@@ -103,6 +104,8 @@ public class WorkController {
             }
             workRepository.save(work);
             return responseMessage("{\"id\":\""+workId+"\"}", HttpStatus.CREATED);
+        } catch (MalformedRequestException e) {
+            return errorResponse(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -168,7 +171,8 @@ public class WorkController {
 
     @AuthorizationRequired
     @PutMapping("{id}/editing")
-    public ResponseEntity<String> editWork(@PathVariable("id") long id, HttpServletRequest req) {
+    public ResponseEntity<String> editWork(@PathVariable("id") long id, HttpServletRequest req)
+    throws IOException {
         try {
             Work work = workRepository.findById(id);
             if (work == null) {
@@ -179,6 +183,7 @@ public class WorkController {
             try (BufferedReader reader = req.getReader()) {
                 json = jsonParser.parse(reader).getAsJsonObject();
             }
+            validateEditingRequestBody(json);
             if (json.has("authors")) {
                 JsonArray array = json.get("authors").getAsJsonArray();
                 compareAndEditAuthors(work, array);
@@ -193,8 +198,8 @@ public class WorkController {
             work.changeTitle(title);
             workRepository.update(work);
             return responseMessage("work has been updated", HttpStatus.OK);
-        } catch (Exception e) {
-            return errorResponse(e.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
+        } catch (MalformedRequestException e) {
+            return errorResponse(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -206,6 +211,16 @@ public class WorkController {
             return errorResponse("work with such id"+id+"doesn't exists", HttpStatus.UNPROCESSABLE_ENTITY);
         workRepository.remove(work);
         return responseMessage("work has been successfully deleted", HttpStatus.OK);
+    }
+
+    private void validateCreationRequestBody(JsonObject json) {
+        if (!json.has("authors") || !json.has("subjects") || !json.has("title") || !json.has("description"))
+            throw new MalformedRequestException();
+    }
+
+    private void validateEditingRequestBody(JsonObject json) {
+        if (!json.has("title") || !json.has("description"))
+            throw new MalformedRequestException();
     }
 
     /*

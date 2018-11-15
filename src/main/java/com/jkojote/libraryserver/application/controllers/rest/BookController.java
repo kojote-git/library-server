@@ -9,6 +9,7 @@ import com.jkojote.library.domain.model.publisher.Publisher;
 import com.jkojote.library.domain.model.work.Work;
 import com.jkojote.library.domain.shared.domain.DomainRepository;
 import com.jkojote.libraryserver.application.JsonConverter;
+import com.jkojote.libraryserver.application.exceptions.MalformedRequestException;
 import com.jkojote.libraryserver.application.security.AuthorizationRequired;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -26,7 +27,7 @@ import static com.jkojote.libraryserver.application.controllers.Util.errorRespon
 import static com.jkojote.libraryserver.application.controllers.Util.responseMessage;
 
 @RestController
-@RequestMapping("/books")
+@RequestMapping("/rest/books")
 public class BookController {
 
     private JsonParser jsonParser;
@@ -117,6 +118,8 @@ public class BookController {
             Book book = new Book(id, work, publisher, edition, new ArrayList<>());
             bookRepository.save(book);
             return new ResponseEntity<>("{\"id\":"+id+"}", HttpStatus.CREATED);
+        } catch (MalformedRequestException e) {
+            return errorResponse(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -138,6 +141,8 @@ public class BookController {
             book.setPublisher(publisher);
             book.setEdition(edition);
             bookRepository.update(book);
+        } catch (MalformedRequestException e) {
+            return errorResponse(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
         return responseMessage("book's been successfully updated", HttpStatus.OK);
     }
@@ -151,6 +156,16 @@ public class BookController {
             return errorResponse("no such book with id: "+id, HttpStatus.UNPROCESSABLE_ENTITY);
         bookRepository.remove(book);
         return responseMessage("book's been deleted", HttpStatus.OK);
+    }
+
+    private void validateEditingRequestBody(JsonObject json) {
+        if (!json.has("publisherId") || !json.has("edition"))
+            throw new MalformedRequestException();
+    }
+
+    private void validateCreationRequestBody(JsonObject json) {
+        if (!json.has("publisherId") || !json.has("workId") || !json.has("edition"))
+            throw new MalformedRequestException();
     }
 
 }

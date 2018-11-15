@@ -9,6 +9,7 @@ import com.jkojote.library.domain.model.book.instance.isbn.Isbn13;
 import com.jkojote.library.domain.shared.domain.DomainRepository;
 import com.jkojote.library.files.FileInstance;
 import com.jkojote.libraryserver.application.JsonConverter;
+import com.jkojote.libraryserver.application.exceptions.MalformedRequestException;
 import com.jkojote.libraryserver.application.security.AuthorizationRequired;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -30,9 +31,7 @@ import java.util.Arrays;
 
 import static com.jkojote.libraryserver.application.controllers.Util.errorResponse;
 import static com.jkojote.libraryserver.application.controllers.Util.responseMessage;
-import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
-import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.HttpStatus.*;
 
 @RestController
 @RequestMapping("/rest/instances")
@@ -111,6 +110,7 @@ public class BookInstanceController {
     public ResponseEntity<String> creation(ServletRequest req) throws IOException {
         try (BufferedReader reader = req.getReader()) {
             JsonObject json = jsonParser.parse(reader).getAsJsonObject();
+            validateCreationRequestBody(json);
             long bookId = json.get("bookId").getAsLong();
             Book book = bookRepository.findById(bookId);
             if (book == null)
@@ -121,6 +121,8 @@ public class BookInstanceController {
             BookInstance bookInstance = new BookInstance(id, book, isbn13, format);
             bookInstanceRepository.save(bookInstance);
             return new ResponseEntity<>("{\"id\":"+id+"}", CREATED);
+        } catch (MalformedRequestException e) {
+            return errorResponse(e.getMessage(), BAD_REQUEST);
         }
     }
 
@@ -182,11 +184,24 @@ public class BookInstanceController {
             return errorResponse("no such book with id: "+id, NOT_FOUND);
         try (BufferedReader reader = req.getReader()) {
             JsonObject json = jsonParser.parse(reader).getAsJsonObject();
+            validateEditingRequestBody(json);
             BookFormat format = BookFormat.of(json.get("format").getAsString());
             bi.setFormat(format);
             bookInstanceRepository.update(bi);
+        } catch (MalformedRequestException e) {
+            return errorResponse(e.getMessage(), BAD_REQUEST);
         }
         return responseMessage("book instance has been successfully updated", HttpStatus.OK);
+    }
+
+    private void validateEditingRequestBody(JsonObject json) {
+        if (!json.has("format"))
+            throw new MalformedRequestException();
+    }
+
+    private void validateCreationRequestBody(JsonObject json) {
+        if (!json.has("bookId") || !json.has("format") || !json.has("isbn13"))
+            throw new MalformedRequestException();
     }
 
     private class FromBytesFileInstance implements FileInstance {
