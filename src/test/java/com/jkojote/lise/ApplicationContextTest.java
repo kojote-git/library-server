@@ -8,6 +8,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.jdbc.core.RowMapper;
 
+import javax.servlet.http.Cookie;
+
 import static org.junit.Assert.assertNotNull;
 
 public class ApplicationContextTest {

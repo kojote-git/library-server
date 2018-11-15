@@ -8,7 +8,8 @@ submit.addEventListener("click", function (e) {
         tPassword = password.value,
         xhr = new XMLHttpRequest();
     xhr.open("POST", LISE_ADM_URL+"/authorization");
-    xhr.setRequestHeader("Credentials", tLogin+":"+tPassword);
+    xhr.setRequestHeader("Login", tLogin);
+    xhr.setRequestHeader("Password", tPassword);
     xhr.addEventListener("load", function (e) {
        console.log(e);
     });

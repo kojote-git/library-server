@@ -1,5 +1,6 @@
 package com.jkojote.libraryserver.application.security;
 
+import com.jkojote.libraryserver.application.controllers.Util;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -11,12 +12,14 @@ import javax.servlet.ServletRequest;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
+import java.util.Optional;
+
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 @Aspect
 public class AuthorizationRequiredAspect {
 
-    private AuthorizationService authorizationService = new AuthorizationServiceImpl();
+    private AuthorizationService authorizationService = AdminAuthorizationService.getService();
 
     @Pointcut("@annotation(AuthorizationRequired)")
     public void withAuthorizationRequired() { }
@@ -54,9 +57,9 @@ public class AuthorizationRequiredAspect {
             authorizeViaCookies(req);
             return (ModelAndView)pjp.proceed();
         } catch (AuthorizationException e) {
-            ModelAndView forbidden = new ModelAndView();
-            forbidden.setViewName("redirect:/adm/authorize-first");
-            return forbidden;
+            ModelAndView unauthorized = new ModelAndView();
+            unauthorized.setViewName("redirect:/adm/authorize-first");
+            return unauthorized;
         } catch (Throwable e) {
             e.printStackTrace();
             throw new RuntimeException(e);
@@ -76,31 +79,23 @@ public class AuthorizationRequiredAspect {
     }
 
     private void authorize(HttpServletRequest request) {
-        String authorization = request.getHeader("Authorization");
-        if (authorization == null)
-            throw new AuthorizationException("Forbidden: no credentials are present", UNAUTHORIZED);
-        int splitIdx = authorization.indexOf(':');
-        String name = authorization.substring(0, splitIdx);
-        String password = authorization.substring(splitIdx + 1);
-        if (!authorizationService.authorize(name, password))
-            throw new AuthorizationException("Forbidden: wrong credentials", UNAUTHORIZED);
+        String login = request.getHeader("Login");
+        String password = request.getHeader("Password");
+        if (login == null || password == null)
+            throw new AuthorizationException("no credentials present", UNAUTHORIZED);
+        if (!authorizationService.authorize(login, password))
+            throw new AuthorizationException("wrong credentials", UNAUTHORIZED);
     }
 
     private void authorizeViaCookies(HttpServletRequest req) {
-        Cookie[] cookies = req.getCookies();
-        if (cookies == null)
-            throw new AuthorizationException("no credentials present");
-        Cookie credentialsCookie = null;
-        for (Cookie c : cookies) {
-            if (c.getName().equals("credentials")) {
-                credentialsCookie = c;
-                break;
-            }
+        Optional<Cookie> optionalTokenCookie = Util.extractCookie("accessToken", req);
+        Optional<Cookie> optionalLoginCookie = Util.extractCookie("login", req);
+        if (!optionalTokenCookie.isPresent() || !optionalLoginCookie.isPresent())
+            throw new AuthorizationException("no credentials present", UNAUTHORIZED);
+        Cookie login = optionalLoginCookie.get();
+        Cookie token = optionalTokenCookie.get();
+        if (!authorizationService.authorizeWithToken(login.getValue(), token.getValue())) {
+            throw new AuthorizationException("wrong credentials", UNAUTHORIZED);
         }
-        if (credentialsCookie == null)
-            throw new AuthorizationException("no credentials present");
-        String[] credentials = credentialsCookie.getValue().split(":");
-        if (!authorizationService.authorize(credentials[0], credentials[1]))
-            throw new AuthorizationException("bad credentials", UNAUTHORIZED);
     }
 }
