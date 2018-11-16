@@ -11,6 +11,35 @@
     <link rel="stylesheet" href="../../css/common.css" th:href="@{/css/common.css}">
 </head>
 <body>
+<header th:replace="fragments/header :: header">
+    <ul class="horizontal navigation-bar">
+        <li class="navigation-bar-item">
+            <a href="#" th:href="${authorsHref}" class="navigation-bar-reference">
+                Authors
+            </a>
+        </li>
+        <li class="navigation-bar-item">
+            <a href="#" th:href="${worksHref}" class="navigation-bar-reference">
+                Works
+            </a>
+        </li>
+        <li class="navigation-bar-item">
+            <a href="#" th:href="${booksHref}" class="navigation-bar-reference">
+                Books
+            </a>
+        </li>
+        <li class="navigation-bar-item">
+            <a href="#" th:href="${publishersHref}" class="navigation-bar-reference">
+                Publishers
+            </a>
+        </li>
+        <li class="navigation-bar-item">
+            <a href="#" th:href="${bookInstancesHref}" class="navigation-bar-reference">
+                BookInstances
+            </a>
+        </li>
+    </ul>
+</header>
 <main class="container" ng-app="authorModule">
     <div class="entity-form">
         <div class="entity-form-header entity-form-section">
@@ -62,7 +91,7 @@
                     <tbody ng-repeat="work in works">
                         <tr>
                             <td>
-                                <a href="{{work.links.adm}}">{{work.id}}</a>
+                                <a href="{{work._links.adm}}">{{work.id}}</a>
                             </td>
                             <td>{{work.title}}</td>
                         </tr>

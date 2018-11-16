@@ -26,7 +26,7 @@ public class AuthorAdminController {
         this.authorRepository = authorRepository;
     }
 
-    @GetMapping("authors/{id}")
+    @GetMapping("{id}")
     @AuthorizationRequired
     public ModelAndView authorEditing(@PathVariable("id") long id, HttpServletRequest req) {
         Author author = authorRepository.findById(id);
@@ -38,11 +38,12 @@ public class AuthorAdminController {
         }
         modelAndView.setStatus(HttpStatus.OK);
         modelAndView.addObject("author", new AuthorView(author));
+        modelAndView.addAllObjects(AdminController.getEntitiesHrefs());
         modelAndView.setViewName("author/author");
         return modelAndView;
     }
 
-    @GetMapping("authors")
+    @GetMapping("")
     @AuthorizationRequired
     public ModelAndView authors(HttpServletRequest req) {
         List<Author> authors = authorRepository.findAll();
@@ -52,6 +53,7 @@ public class AuthorAdminController {
             views.add(new AuthorView(a));
         }
         modelAndView.addObject("authors", views);
+        modelAndView.addAllObjects(AdminController.getEntitiesHrefs());
         modelAndView.setViewName("author/authors");
         return modelAndView;
     }

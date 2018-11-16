@@ -1,0 +1,12 @@
+.text-section {
+    padding: 5px;
+    margin: 5px;
+}
+
+.text-section-header {
+    color: rgb(45, 45, 45);
+}
+
+.text-section-content {
+    font-size: 1.15em;
+}

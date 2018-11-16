@@ -11,7 +11,11 @@ submit.addEventListener("click", function (e) {
     xhr.setRequestHeader("Login", tLogin);
     xhr.setRequestHeader("Password", tPassword);
     xhr.addEventListener("load", function (e) {
-       console.log(e);
+        if (xhr.status !== 200) {
+            alert(JSON.parse(xhr.response).error);
+        } else {
+            window.open(LISE_ADM_URL + "admin-page", "_self", false);
+        }
     });
     xhr.send();
 });

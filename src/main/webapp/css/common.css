@@ -2,6 +2,12 @@ body {
     background-color: rgb(252, 252, 252);
 }
 
+main {
+    margin-top: 15px;
+}
+
+
+
 .entity-form {
     max-width: 640px;
     margin: 10px auto;
@@ -55,4 +61,38 @@ body {
 
 .associations {
     padding: 5px;
+}
+
+ul.horizontal {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+ul.horizontal > li {
+    display: inline;
+}
+
+ul.navigation-bar {
+    min-height: 50px;
+    padding: 5px;
+    background-color: rgb(254, 254, 254);
+    border-bottom: 2px solid rgb(230, 230, 230);
+}
+
+.navigation-bar-item {
+    padding: 5px;
+    min-height: 40px;
+    font-size: 25px;
+    line-height: 40px;
+}
+
+.navigation-bar-reference {
+    text-decoration: none;
+    color: rgb(80, 80, 80);
+}
+
+.navigation-bar-reference:hover {
+    color: rgb(40, 40, 40);
+    text-decoration: none;
 }
