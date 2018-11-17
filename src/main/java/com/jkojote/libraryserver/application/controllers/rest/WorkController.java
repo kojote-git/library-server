@@ -61,7 +61,7 @@ public class WorkController {
         defaultHeaders.set("Content-Type", "application/json");
     }
 
-    @GetMapping("/")
+    @GetMapping("")
     @CrossOrigin
     public ResponseEntity<String> getAll() {
         List<Work> works = workRepository.findAll();

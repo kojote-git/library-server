@@ -152,10 +152,5 @@ authorModule.controller("AuthorController", ["$http", "$scope",
 function getAuthorId() {
     return document.getElementById("author-id").innerText;
 }
-function getLogin() {
-    return getCookie("login");
-}
-function getAccessToken() {
-    return getCookie("accessToken");
-}
+
 

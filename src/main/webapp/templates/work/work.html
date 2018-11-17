@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org/">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="../../css/bootstrap-4.1.3-dist/css/bootstrap.min.css"
+        th:href="@{/css/bootstrap-4.1.3-dist/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" href="../../css/common.css"
+        th:href="@{/css/common.css}"/>
+    <style>
+        #description {
+            height: 150px;
+            resize: none;
+        }
+    </style>
+</head>
+<body>
+<header th:replace="fragments/header :: header">
+    <ul class="horizontal navigation-bar">
+        <li class="navigation-bar-item">
+            <a href="#" class="navigation-bar-reference">
+                Authors
+            </a>
+        </li>
+        <li class="navigation-bar-item">
+            <a href="#" class="navigation-bar-reference">
+                Works
+            </a>
+        </li>
+        <li class="navigation-bar-item">
+            <a href="#" class="navigation-bar-reference">
+                Books
+            </a>
+        </li>
+        <li class="navigation-bar-item">
+            <a href="#" class="navigation-bar-reference">
+                Publishers
+            </a>
+        </li>
+        <li class="navigation-bar-item">
+            <a href="#" class="navigation-bar-reference">
+                BookInstances
+            </a>
+        </li>
+    </ul>
+</header>
+<main class="container" ng-app="workModule" ng-controller="WorkController">
+    <input type="text" class="hidden" value="">
+    <div class="entity-form large-size-form">
+        <div class="entity-form-section entity-form-header">
+            Work
+        </div>
+        <div class="entity-form-section row">
+            <div class="entity-attribute medium-size-attribute col-xs-12 col-md-3">
+                <div class="form-group">
+                    <label for="title">title</label>
+                    <input id="title" class="form-control" type="text" th:value="${work.title}"/>
+                </div>
+                <div class="form-group">
+                    <label for="subject">subject</label>
+                    <input id="subject" type="text" class="form-control">
+                    <div class="association-labels">
+                        <div ng-repeat="subject in subjects" class="association-label-wrapper">
+                            <div class="association-label">
+                                <div class="label-value">{{subject}}</div>
+                                <div class="label-remove">
+                                    <img src="{{getSrcForRemoveIcon()}}" class="label-remove-icon" alt=""
+                                        ng-click="removeSubject($event)">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="entity-attribute medium-size-attribute col-xs-12 col-md-9">
+                <div class="form-group">
+                    <label for="description">description</label>
+                    <textarea id="description" class="form-control" th:value="${work.description.toString()}"
+                              th:text="${work.description.toString()}"></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="entity-form-section entity-associations">
+            <div class="associations-header">
+                <div class="caret-wrapper" ng-click="addAuthor()">
+                    <img class="caret" src="../../res/plus.png"
+                         th:src="@{/res/plus.png}" alt="">
+                </div>
+                Authors
+                <div class="caret-wrapper" ng-click="loadAuthors()">
+                    <img id="caret" class="caret" src="../../res/up-caret.png"
+                         th:src="@{/res/up-caret.png}" alt="expand">
+                </div>
+            </div>
+            <div id="author-associations" class="associations {{getHidden()}}">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th class="remove-association-control-header">X</th>
+                            <th>ID</th>
+                            <th>first name</th>
+                            <th>middle name</th>
+                            <th>last name</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="author in authors">
+                            <td class="remove-association-control">
+                                <span ng-click="removeAuthor($event)"
+                                    data-author-id="{{author.id}}">
+                                    X
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{{author._links.adm}}">{{author.id}}</a>
+                            </td>
+                            <td><span class="{{getClassForAssociation(author.id)}}">{{author.firstName}}</span></td>
+                            <td><span class="{{getClassForAssociation(author.id)}}">{{author.middleName}}</span></td>
+                            <td><span class="{{getClassForAssociation(author.id)}}">{{author.lastName}}</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="submit-buttons">
+            <div class="btn btn-primary submit-btn" ng-click="submitEditing()">Submit</div>
+            <div class="btn btn-danger submit-btn" ng-click="remove()">Remove</div>
+        </div>
+    </div>
+    <span id="work-id" class="hidden" th:text="${work.id}">1</span>
+</main>
+</body>
+<script th:src="@{/js/angular.min.js}" src="../../js/angular.min.js"></script>
+<script th:src="@{/js/util.js}" src="../../js/util.js"></script>
+<script th:src="@{/js/common.js}" src="../../js/common.js"></script>
+<script th:src="@{/js/work/work.js}" src="../../js/work/work.js"></script>
+</html>

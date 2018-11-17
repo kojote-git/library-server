@@ -24,11 +24,18 @@ main {
 }
 
 .entity-form {
-    max-width: 640px;
     margin: 10px auto;
     background-color: rgb(254, 254, 254);
     border: 1px solid rgb(230, 230, 230);
     border-radius: 1px;
+}
+
+.medium-size-form {
+    max-width: 640px;
+}
+
+.large-size-form {
+    min-width: 800px;
 }
 
 .entity-attribute {
@@ -45,6 +52,10 @@ main {
 
 .entity-form-section {
     padding: 5px 10px;
+}
+
+.medium-size-attribute {
+    max-width: 640px;
 }
 
 .submit-buttons {
@@ -114,4 +125,44 @@ ul.navigation-bar {
 .navigation-bar-reference:hover {
     color: rgb(40, 40, 40);
     text-decoration: none;
+}
+
+.association-label-wrapper {
+    display: inline-block;
+    margin: 3px 3px 3px 0;
+}
+
+.association-labels {
+    line-height: 15px;
+    padding: 3px 3px 3px 0;
+    margin: 10px 0;
+}
+
+.association-label {
+    display: grid;
+    grid-template-columns: auto 18px;
+    font-size: 18px;
+    max-width: 150px;
+    color: rgb(255, 255, 255);
+    background-color: #1baec6;
+    border-radius: 3px;
+}
+
+.label-value {
+    padding: 3px;
+    line-height: 18px;
+    word-break: break-word;
+}
+
+
+.label-remove {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    line-height: 18px;
+}
+
+.label-remove-icon {
+    width: 100%;
+    height: 100%;
 }

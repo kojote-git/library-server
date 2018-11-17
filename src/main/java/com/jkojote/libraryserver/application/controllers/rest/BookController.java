@@ -61,7 +61,7 @@ public class BookController {
         this.bookInstanceJsonConverter = bookInstanceJsonConverter;
     }
 
-    @GetMapping("/")
+    @GetMapping("")
     @CrossOrigin
     public ResponseEntity<String> getAll() {
         List<Book> books = bookRepository.findAll();
@@ -105,6 +105,7 @@ public class BookController {
     public ResponseEntity<String> creation(HttpServletRequest req) throws IOException {
         try (BufferedReader reader = req.getReader()) {
             JsonObject json = jsonParser.parse(reader).getAsJsonObject();
+            validateCreationRequestBody(json);
             long publisherId = json.get("publisherId").getAsLong();
             long workId = json.get("workId").getAsLong();
             int edition = json.get("edition").getAsInt();
@@ -133,6 +134,7 @@ public class BookController {
             return errorResponse("no such book with id: "+id, HttpStatus.UNPROCESSABLE_ENTITY);
         try (BufferedReader reader = req.getReader()) {
             JsonObject json = jsonParser.parse(reader).getAsJsonObject();
+            validateEditingRequestBody(json);
             int edition = json.get("edition").getAsInt();
             long publisherId = json.get("publisherId").getAsLong();
             Publisher publisher = publisherRepository.findById(publisherId);

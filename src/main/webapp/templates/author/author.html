@@ -41,7 +41,7 @@
     </ul>
 </header>
 <main class="container" ng-app="authorModule" ng-controller="AuthorController">
-    <div class="entity-form">
+    <div class="entity-form medium-size-form">
         <div class="entity-form-header entity-form-section">
             Author
         </div>
@@ -109,7 +109,7 @@
             <div id="remove-author" class="btn btn-danger submit-btn" ng-click="remove()">Delete</div>
         </div>
     </div>
-    <span id="author-id" class="hidden" th:text="${{author.id}}">1</span>
+    <span id="author-id" class="hidden" th:text="${author.id}">1</span>
 </main>
 <script src="../../js/angular.min.js" th:src="@{/js/angular.min.js}"></script>
 <script th:src="@{/js/common.js}" src="../../js/common.js"></script>
