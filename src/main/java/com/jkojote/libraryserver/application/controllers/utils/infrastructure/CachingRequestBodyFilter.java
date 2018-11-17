@@ -1,4 +1,4 @@
-package com.jkojote.libraryserver.application.infrastructure;
+package com.jkojote.libraryserver.application.controllers.utils.infrastructure;
 
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.GenericFilterBean;

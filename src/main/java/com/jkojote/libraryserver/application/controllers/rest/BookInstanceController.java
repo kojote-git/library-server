@@ -29,8 +29,8 @@ import java.sql.Blob;
 import java.sql.SQLException;
 import java.util.Arrays;
 
-import static com.jkojote.libraryserver.application.controllers.Util.errorResponse;
-import static com.jkojote.libraryserver.application.controllers.Util.responseMessage;
+import static com.jkojote.libraryserver.application.controllers.utils.Util.errorResponse;
+import static com.jkojote.libraryserver.application.controllers.utils.Util.responseMessage;
 import static org.springframework.http.HttpStatus.*;
 
 @RestController

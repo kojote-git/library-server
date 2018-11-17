@@ -24,8 +24,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.jkojote.libraryserver.application.controllers.Util.errorResponse;
-import static com.jkojote.libraryserver.application.controllers.Util.responseMessage;
+import static com.jkojote.libraryserver.application.controllers.utils.Util.errorResponse;
+import static com.jkojote.libraryserver.application.controllers.utils.Util.responseMessage;
 
 @RestController
 @RequestMapping("/rest/works")

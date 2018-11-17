@@ -1,6 +1,6 @@
 package com.jkojote.libraryserver.application.security;
 
-import com.jkojote.libraryserver.application.controllers.Util;
+import com.jkojote.libraryserver.application.controllers.utils.Util;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;

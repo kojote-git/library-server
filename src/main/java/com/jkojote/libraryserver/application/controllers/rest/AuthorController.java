@@ -6,6 +6,8 @@ import com.jkojote.library.domain.model.work.Work;
 import com.jkojote.library.domain.shared.domain.DomainRepository;
 import com.jkojote.library.values.Name;
 import com.jkojote.libraryserver.application.JsonConverter;
+import com.jkojote.libraryserver.application.controllers.utils.EntityUrlParamsFilter;
+import com.jkojote.libraryserver.application.controllers.utils.RequestUrlParametersParser;
 import com.jkojote.libraryserver.application.exceptions.MalformedRequestException;
 import com.jkojote.libraryserver.application.security.AuthorizationRequired;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,11 +19,10 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintStream;
+import java.util.List;
 
-import static com.jkojote.libraryserver.application.controllers.Util.*;
+import static com.jkojote.libraryserver.application.controllers.utils.Util.*;
 
 @RestController
 @RequestMapping("/rest/authors")
@@ -36,8 +37,9 @@ public class AuthorController {
 
     private JsonConverter<Work> workJsonConverter;
 
-    private JsonParser jsonParser;
+    private EntityUrlParamsFilter<Author> authorFilter;
 
+    private JsonParser jsonParser;
 
     @Autowired
     public AuthorController(
@@ -48,12 +50,15 @@ public class AuthorController {
             @Qualifier("authorJsonConverter")
             JsonConverter<Author> authorJsonConverter,
             @Qualifier("workJsonConverter")
-            JsonConverter<Work> workJsonConverter) {
+            JsonConverter<Work> workJsonConverter,
+            @Qualifier("authorFilter")
+            EntityUrlParamsFilter<Author> authorFilter) {
         this.authorRepository = authorRepository;
         this.workRepository = workRepository;
         this.jsonParser = new JsonParser();
         this.authorJsonConverter = authorJsonConverter;
         this.workJsonConverter = workJsonConverter;
+        this.authorFilter = authorFilter;
     }
 
     @AuthorizationRequired
@@ -79,6 +84,19 @@ public class AuthorController {
         } catch (MalformedRequestException e) {
             return errorResponse(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @GetMapping("")
+    @CrossOrigin
+    public ResponseEntity<String> getAll(HttpServletRequest req) {
+        JsonArray array = new JsonArray();
+        JsonObject resp = new JsonObject();
+        String url = req.getQueryString();
+        List<Author> authors = authorFilter.findAllQueryString(url);
+        for (Author a : authors)
+            array.add(authorJsonConverter.convertToJson(a));
+        resp.add("authors", array);
+        return new ResponseEntity<>(resp.toString(), HttpStatus.OK);
     }
 
     @GetMapping("{id}")

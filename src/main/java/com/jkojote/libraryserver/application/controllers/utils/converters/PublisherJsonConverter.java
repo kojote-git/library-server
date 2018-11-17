@@ -1,4 +1,4 @@
-package com.jkojote.libraryserver.application.converters;
+package com.jkojote.libraryserver.application.controllers.utils.converters;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;

@@ -40,7 +40,10 @@
         </li>
     </ul>
 </header>
-  <main class="container">
+  <main class="container" ng-app="authorsModule" ng-controller="AuthorsController">
+    <div class="search-bar">
+        <input id="search-by-name" type="text" class="form-control" placeholder="search">
+    </div>
     <table class="table">
         <thead>
             <tr>
@@ -51,20 +54,21 @@
             </tr>
         </thead>
         <tbody>
-            <th:block th:each="author : ${authors}">
-                <tr th:data-author-binding-id="${author.id}">
-                    <td>
-                        <a href="#" th:href="${author.url}" th:text="${author.id}">
-                            id
-                        </a>
-                    </td>
-                    <td th:text="${author.firstName}">first name</td>
-                    <td th:text="${author.middleName}">middle name</td>
-                    <td th:text="${author.lastName}">last name</td>
-                </tr>
-            </th:block>
+            <tr ng-repeat="author in authors">
+                <td>
+                    <a href="{{author._links.adm}}">
+                        {{author.id}}
+                    </a>
+                </td>
+                <td>{{author.firstName}}</td>
+                <td>{{author.middleName}}</td>
+                <td>{{author.lastName}}</td>
+            </tr>
         </tbody>
     </table>
   </main>
 </body>
+<script src="../../js/common.js" th:src="@{/js/common.js}"></script>
+<script src="../../js/angular.min.js" th:src="@{/js/angular.min.js}"></script>
+<script src="../../js/author/authors.js" th:src="@{/js/author/authors.js}"></script>
 </html>

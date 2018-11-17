@@ -2,7 +2,7 @@ package com.jkojote.libraryserver.application.controllers.views;
 
 import com.jkojote.library.domain.model.author.Author;
 import com.jkojote.library.domain.shared.domain.DomainRepository;
-import com.jkojote.libraryserver.application.controllers.Util;
+import com.jkojote.libraryserver.application.controllers.utils.Util;
 import com.jkojote.libraryserver.application.security.AdminAuthorizationService;
 import com.jkojote.libraryserver.application.security.AuthorizationRequired;
 import com.jkojote.libraryserver.application.security.AuthorizationService;
