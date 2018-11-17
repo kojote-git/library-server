@@ -6,7 +6,22 @@ main {
     margin-top: 15px;
 }
 
+.remove-association-control, .remove-association-control-header{
+    max-width: 20px;
+    text-align: center;
+}
 
+.remove-association-control:hover {
+    cursor: pointer;
+}
+
+.for-removal {
+    color: #ff554e;
+}
+
+.for-adding {
+    color: #44ff6c;
+}
 
 .entity-form {
     max-width: 640px;
@@ -22,14 +37,18 @@ main {
 }
 
 .submit-btn {
-    display: block;
+    display: inline-block;
     padding: 5px;
-    max-width: 110px;
+    min-width: 110px;
     margin: 5px auto;
 }
 
 .entity-form-section {
     padding: 5px 10px;
+}
+
+.submit-buttons {
+    text-align: center;
 }
 
 .entity-form-header {

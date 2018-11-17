@@ -14,33 +14,33 @@
 <header th:replace="fragments/header :: header">
     <ul class="horizontal navigation-bar">
         <li class="navigation-bar-item">
-            <a href="#" th:href="${authorsHref}" class="navigation-bar-reference">
+            <a href="#" class="navigation-bar-reference">
                 Authors
             </a>
         </li>
         <li class="navigation-bar-item">
-            <a href="#" th:href="${worksHref}" class="navigation-bar-reference">
+            <a href="#" class="navigation-bar-reference">
                 Works
             </a>
         </li>
         <li class="navigation-bar-item">
-            <a href="#" th:href="${booksHref}" class="navigation-bar-reference">
+            <a href="#" class="navigation-bar-reference">
                 Books
             </a>
         </li>
         <li class="navigation-bar-item">
-            <a href="#" th:href="${publishersHref}" class="navigation-bar-reference">
+            <a href="#" class="navigation-bar-reference">
                 Publishers
             </a>
         </li>
         <li class="navigation-bar-item">
-            <a href="#" th:href="${bookInstancesHref}" class="navigation-bar-reference">
+            <a href="#" class="navigation-bar-reference">
                 BookInstances
             </a>
         </li>
     </ul>
 </header>
-<main class="container" ng-app="authorModule">
+<main class="container" ng-app="authorModule" ng-controller="AuthorController">
     <div class="entity-form">
         <div class="entity-form-header entity-form-section">
             Author
@@ -68,45 +68,52 @@
                 </div>
             </div>
         </div>
-        <div class="entity-associations entity-form-section" ng-controller="AuthorController">
+        <div class="entity-associations entity-form-section">
             <div class="associations-header">
-                <div class="caret-wrapper">
+                <div class="caret-wrapper" ng-click="addWork()">
                     <img class="caret" src="../../res/plus.png"
                          th:src="@{/res/plus.png}" alt="">
                 </div>
                 Works
                 <div class="caret-wrapper" ng-click="loadWorks()">
-                    <img class="caret" src="../../res/up-caret.png"
-                         th:src="@{/res/up-caret.png}" alt="">
+                    <img id="caret" class="caret" src="../../res/up-caret.png"
+                         th:src="@{/res/up-caret.png}" alt="expand">
                 </div>
             </div>
-            <div id="work-associations" class="associations hidden">
+            <div id="work-associations" class="associations {{getHidden()}}">
                 <table class="table">
                     <thead>
                         <tr>
+                            <th class="remove-association-control-header">X</th>
                             <th>ID</th>
                             <th>title</th>
                         </tr>
                     </thead>
-                    <tbody ng-repeat="work in works">
-                        <tr>
+                    <tbody>
+                        <tr ng-repeat="work in works">
+                            <td class="remove-association-control" ng-click="removeWork($event)"
+                                data-work-id="{{work.id}}">
+                                X
+                            </td>
                             <td>
                                 <a href="{{work._links.adm}}">{{work.id}}</a>
                             </td>
-                            <td>{{work.title}}</td>
+                            <td><span class="{{getClassForAssociation(work.id)}}">{{work.title}}</span></td>
                         </tr>
                     </tbody>
                 </table>
             </div>
         </div>
-        <div class="entity-form-section">
-            <div id="submit-author" class="btn btn-primary submit-btn">Submit</div>
+        <div class="entity-form-section submit-buttons">
+            <div id="submit-author" class="btn btn-primary submit-btn" ng-click="submitEditing()">Submit</div>
+            <div id="remove-author" class="btn btn-danger submit-btn" ng-click="remove()">Delete</div>
         </div>
     </div>
     <span id="author-id" class="hidden" th:text="${{author.id}}">1</span>
 </main>
 <script src="../../js/angular.min.js" th:src="@{/js/angular.min.js}"></script>
 <script th:src="@{/js/common.js}" src="../../js/common.js"></script>
+<script th:src="@{/js/util.js}" src="../../js/util.js"></script>
 <script src="../../js/author/author.js" th:src="@{/js/author/author.js}"></script>
 </body>
 </html>

@@ -17,7 +17,9 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 
 import static com.jkojote.libraryserver.application.controllers.Util.*;
 
@@ -35,6 +37,7 @@ public class AuthorController {
     private JsonConverter<Work> workJsonConverter;
 
     private JsonParser jsonParser;
+
 
     @Autowired
     public AuthorController(
@@ -134,8 +137,8 @@ public class AuthorController {
             return responseMessage("author has been updated", HttpStatus.OK);
         } catch (MalformedRequestException e1) {
             return errorResponse(e1.getMessage(), HttpStatus.BAD_REQUEST);
-        } catch (Exception e) {
-            return errorResponse(e.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 

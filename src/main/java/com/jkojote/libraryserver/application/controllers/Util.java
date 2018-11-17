@@ -27,6 +27,8 @@ public final class Util {
     public static ResponseEntity<String> errorResponse(String message,
                                                        HttpHeaders headers,
                                                        HttpStatus status) {
+        if (message == null)
+            message = "";
         JsonObject json = new JsonObject();
         json.add("error", new JsonPrimitive(message));
         return new ResponseEntity<>(json.toString(), headers, status);
@@ -34,6 +36,8 @@ public final class Util {
 
     public static ResponseEntity<String> responseMessage(String message, HttpHeaders headers, HttpStatus status) {
         JsonObject json = new JsonObject();
+        if (message == null)
+            message = "";
         json.add("responseMessage", new JsonPrimitive(message));
         return new ResponseEntity<>(json.toString(), headers, status);
     }

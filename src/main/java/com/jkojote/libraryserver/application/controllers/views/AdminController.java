@@ -88,10 +88,16 @@ public class AdminController {
     @PostMapping("logout")
     @ResponseBody
     public ResponseEntity<String> logout(HttpServletRequest req, HttpServletResponse resp) {
-        Optional<Cookie> optionalCookie = Util.extractCookie("accessToken", req);
-        if (!optionalCookie.isPresent())
+        Optional<Cookie> optionalToken = Util.extractCookie("accessToken", req);
+        Optional<Cookie> optionalLogin = Util.extractCookie("login", req);
+        if (!optionalToken.isPresent())
             return new ResponseEntity<>("no credentials present", BAD_REQUEST);
-        Cookie cookie = optionalCookie.get();
+        if (optionalLogin.isPresent()) {
+            Cookie login = optionalLogin.get();
+            login.setMaxAge(0);
+            resp.addCookie(login);
+        }
+        Cookie cookie = optionalToken.get();
         cookie.setMaxAge(0);
         resp.addCookie(cookie);
         return new ResponseEntity<>("ok", OK);
