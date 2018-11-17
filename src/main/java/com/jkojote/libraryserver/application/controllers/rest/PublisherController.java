@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -77,7 +78,7 @@ public class PublisherController {
 
     @PostMapping("creation")
     @AuthorizationRequired
-    public ResponseEntity<String> creation(ServletRequest req) throws IOException {
+    public ResponseEntity<String> creation(HttpServletRequest req) throws IOException {
         try (BufferedReader reader = req.getReader()) {
             JsonObject json = jsonParser.parse(reader).getAsJsonObject();
             validateCreationRequestBody(json);
@@ -93,7 +94,7 @@ public class PublisherController {
 
     @DeleteMapping("{id}/deleting")
     @AuthorizationRequired
-    public ResponseEntity<String> deleting(@PathVariable("id") long id) {
+    public ResponseEntity<String> deleting(HttpServletRequest req, @PathVariable("id") long id) {
         Publisher p = publisherRepository.findById(id);
         if (p == null)
             return errorResponse("no such publisher with id "+id, HttpStatus.UNPROCESSABLE_ENTITY);
@@ -120,7 +121,7 @@ public class PublisherController {
 
     @PutMapping("{id}/editing")
     @AuthorizationRequired
-    public ResponseEntity<String> editPublisher(@PathVariable("id") long id, ServletRequest req)
+    public ResponseEntity<String> editPublisher(@PathVariable("id") long id, HttpServletRequest req)
     throws IOException {
         Publisher publisher = publisherRepository.findById(id);
         if (publisher == null)

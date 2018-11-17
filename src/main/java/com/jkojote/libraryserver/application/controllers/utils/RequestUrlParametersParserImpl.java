@@ -31,7 +31,7 @@ public class RequestUrlParametersParserImpl implements RequestUrlParametersParse
             if (idx == -1)
                 continue;
             String paramName = param.substring(0, idx);
-            String paramValue = param.substring(idx + 1);
+            String paramValue = param.substring(idx + 1).replaceAll("%20", " ");
             if (!pairs.containsKey(paramName))
                 pairs.put(paramName, paramValue);
         }

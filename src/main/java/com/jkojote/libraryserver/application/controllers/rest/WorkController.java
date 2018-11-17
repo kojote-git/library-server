@@ -8,6 +8,7 @@ import com.jkojote.library.domain.shared.domain.DomainRepository;
 import com.jkojote.library.values.OrdinaryText;
 import com.jkojote.library.values.Text;
 import com.jkojote.libraryserver.application.JsonConverter;
+import com.jkojote.libraryserver.application.controllers.utils.EntityUrlParamsFilter;
 import com.jkojote.libraryserver.application.exceptions.MalformedRequestException;
 import com.jkojote.libraryserver.application.security.AuthorizationRequired;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +44,8 @@ public class WorkController {
 
     private JsonConverter<Author> authorJsonConverter;
 
+    private EntityUrlParamsFilter<Work> workFilter;
+
     @Autowired
     public WorkController(@Qualifier("workRepository")
                           DomainRepository<Work> workRepository,
@@ -51,22 +54,26 @@ public class WorkController {
                           @Qualifier("workJsonConverter")
                           JsonConverter<Work> workJsonConverter,
                           @Qualifier("authorJsonConverter")
-                          JsonConverter<Author> authorJsonConverter) {
+                          JsonConverter<Author> authorJsonConverter,
+                          @Qualifier("workFilter")
+                          EntityUrlParamsFilter<Work> workFilter) {
         this.authorRepository = authorRepository;
         this.workRepository = workRepository;
         this.jsonParser = new JsonParser();
         this.defaultHeaders = new HttpHeaders();
         this.workJsonConverter = workJsonConverter;
         this.authorJsonConverter = authorJsonConverter;
+        this.workFilter = workFilter;
         defaultHeaders.set("Content-Type", "application/json");
     }
 
     @GetMapping("")
     @CrossOrigin
-    public ResponseEntity<String> getAll() {
-        List<Work> works = workRepository.findAll();
+    public ResponseEntity<String> getAll(HttpServletRequest req) {
         JsonObject obj = new JsonObject();
         JsonArray array = new JsonArray();
+        String queryString = req.getQueryString();
+        List<Work> works = workFilter.findAllQueryString(queryString);
         obj.add("works", array);
         for (Work w : works) {
             array.add(workJsonConverter.convertToJson(w));
@@ -169,10 +176,10 @@ public class WorkController {
         return new ResponseEntity<>(json.toString(), defaultHeaders, HttpStatus.OK);
     }
 
-    @AuthorizationRequired
     @PutMapping("{id}/editing")
+    @AuthorizationRequired
     public ResponseEntity<String> editWork(@PathVariable("id") long id, HttpServletRequest req)
-    throws IOException {
+            throws IOException {
         try {
             Work work = workRepository.findById(id);
             if (work == null) {
@@ -205,7 +212,7 @@ public class WorkController {
 
     @AuthorizationRequired
     @DeleteMapping("{id}/deleting")
-    public ResponseEntity<String> delete(@PathVariable("id") long id) {
+    public ResponseEntity<String> delete(HttpServletRequest req, @PathVariable("id") long id) {
         Work work = workRepository.findById(id);
         if (work == null)
             return errorResponse("work with such id"+id+"doesn't exists", HttpStatus.UNPROCESSABLE_ENTITY);

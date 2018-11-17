@@ -104,10 +104,10 @@ public class BookInstanceController {
         return true;
     }
 
-    @AuthorizationRequired
     @PostMapping("creation")
     @CrossOrigin
-    public ResponseEntity<String> creation(ServletRequest req) throws IOException {
+    @AuthorizationRequired
+    public ResponseEntity<String> creation(HttpServletRequest req) throws IOException {
         try (BufferedReader reader = req.getReader()) {
             JsonObject json = jsonParser.parse(reader).getAsJsonObject();
             validateCreationRequestBody(json);
@@ -126,9 +126,9 @@ public class BookInstanceController {
         }
     }
 
-    @AuthorizationRequired
     @PutMapping("{id}/file")
     @CrossOrigin
+    @AuthorizationRequired
     public ResponseEntity<String> fileUpdating(@PathVariable("id") long id, HttpServletRequest req)
     throws IOException, ServletException {
         BookInstance bi = bookInstanceRepository.findById(id);
@@ -151,9 +151,9 @@ public class BookInstanceController {
         return responseMessage("book instance has been updated", OK);
     }
 
-    @AuthorizationRequired
     @PutMapping("{id}/cover")
     @CrossOrigin
+    @AuthorizationRequired
     public ResponseEntity<String> coverUploading(@PathVariable("id") long id, HttpServletRequest req)
     throws IOException, ServletException {
         BookInstance bi = bookInstanceRepository.findById(id);
@@ -174,11 +174,11 @@ public class BookInstanceController {
         return responseMessage("book instance has been updated", OK);
     }
 
-    @AuthorizationRequired
     @PutMapping("{id}/editing")
     @CrossOrigin
+    @AuthorizationRequired
     public ResponseEntity<String> editing(@PathVariable("id") long id, HttpServletRequest req)
-    throws IOException {
+            throws IOException {
         BookInstance bi = bookInstanceRepository.findById(id);
         if (bi == null)
             return errorResponse("no such book with id: "+id, NOT_FOUND);
