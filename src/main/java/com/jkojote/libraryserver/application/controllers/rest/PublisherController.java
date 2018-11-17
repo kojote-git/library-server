@@ -86,10 +86,10 @@ public class PublisherController {
             long id = publisherRepository.nextId();
             Publisher publisher = new Publisher(id, name, new ArrayList<>());
             publisherRepository.save(publisher);
+            return new ResponseEntity<>("{\"id\""+id+"}", HttpStatus.CREATED);
         } catch (MalformedRequestException e) {
             return errorResponse(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
-        return responseMessage("publisher's been created", HttpStatus.CREATED);
     }
 
     @DeleteMapping("{id}/deleting")

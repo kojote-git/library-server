@@ -30,8 +30,6 @@ import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 @RequestMapping("/adm")
 public class AdminController {
 
-    private DomainRepository<Author> authorRepository;
-
     private AuthorizationService authorizationService = AdminAuthorizationService.getService();
 
     private static final Map<String, String> ENTITIES_HREF;
@@ -45,17 +43,13 @@ public class AdminController {
         ENTITIES_HREF.put("bookInstancesHref", WebConfig.URL + "adm/bookInstances");
         ENTITIES_HREF.put("publishersHref", WebConfig.URL + "adm/publishers");
         ENTITIES_HREF.put("worksHref", WebConfig.URL + "adm/works");
+        ENTITIES_HREF.put("createAuthor", WebConfig.URL + "adm/authors/creation");
+        ENTITIES_HREF.put("createWork", WebConfig.URL + "adm/works/creation");
         ENTITIES_HREF_VIEW = Collections.unmodifiableMap(ENTITIES_HREF);
     }
 
     public static Map<String, String> getEntitiesHrefs() {
         return ENTITIES_HREF_VIEW;
-    }
-
-    @Autowired
-    public AdminController(@Qualifier("authorRepository")
-                           DomainRepository<Author> authorRepository) {
-        this.authorRepository = authorRepository;
     }
 
     @GetMapping

@@ -81,6 +81,23 @@ public class WorkController {
         return new ResponseEntity<>(obj.toString(), HttpStatus.OK);
     }
 
+    /**
+     * Reads body of the request and creates new work; returns assigned id.
+     * The request body is represented by json. Example:
+     * <pre>
+     * {
+     *   "title":"title",
+     *   "description":"description",
+     *   "authors":[1,2],
+     *   "subjects":["subject1", "subject2"]
+     * }
+     * </pre>
+     * <b>All properties are required<br/>
+     *
+     * @param req request, needed for authorization and for reading json
+     * @return response that contains id of newly created work
+     * @throws IOException
+     */
     @AuthorizationRequired
     @PostMapping("creation")
     public ResponseEntity<String> createWork(HttpServletRequest req) throws IOException {
@@ -110,7 +127,7 @@ public class WorkController {
                 work.addSubject(Subject.of(subject.getAsString()));
             }
             workRepository.save(work);
-            return responseMessage("{\"id\":\""+workId+"\"}", HttpStatus.CREATED);
+            return new ResponseEntity<>("{\"id\":\""+workId+"\"}", HttpStatus.CREATED);
         } catch (MalformedRequestException e) {
             return errorResponse(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
@@ -122,11 +139,10 @@ public class WorkController {
         Work work = workRepository.findById(id);
         if (work == null) {
             return errorResponse("work with specified id doesn't exist yet", defaultHeaders,
-                    HttpStatus.UNPROCESSABLE_ENTITY);
+                    HttpStatus.NOT_FOUND);
         }
 
-        return new ResponseEntity<>(workJsonConverter.convertToString(work),
-                defaultHeaders, HttpStatus.OK);
+        return new ResponseEntity<>(workJsonConverter.convertToString(work), HttpStatus.OK);
     }
 
     @GetMapping("{id}/description")

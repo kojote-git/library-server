@@ -54,4 +54,13 @@ public class WorkAdminController {
         modelAndView.setViewName("work/works");
         return modelAndView;
     }
+
+    @GetMapping("creation")
+    @AuthorizationRequired
+    public ModelAndView creation(HttpServletRequest req) {
+        ModelAndView modelAndView = new ModelAndView();
+        modelAndView.setViewName("work/create");
+        modelAndView.addAllObjects(AdminController.getEntitiesHrefs());
+        return modelAndView;
+    }
 }

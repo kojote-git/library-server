@@ -57,4 +57,13 @@ public class AuthorAdminController {
         modelAndView.setViewName("author/authors");
         return modelAndView;
     }
+
+    @GetMapping("creation")
+    @AuthorizationRequired
+    public ModelAndView creation(HttpServletRequest req) {
+        ModelAndView modelAndView = new ModelAndView();
+        modelAndView.setViewName("author/create");
+        modelAndView.addAllObjects(AdminController.getEntitiesHrefs());
+        return modelAndView;
+    }
 }
