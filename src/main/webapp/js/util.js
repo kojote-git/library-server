@@ -27,3 +27,28 @@ function getLogin() {
 function getAccessToken() {
     return getCookie("accessToken");
 }
+
+function getRequestHeaders() {
+    return {
+        "Access-token": getAccessToken(),
+        "Login": getLogin()
+    };
+}
+
+function binarySearch(array, value, comparator) {
+    var guess,
+        min = 0,
+        max = array.length - 1;
+
+    while(min <= max) {
+        guess = Math.floor((min + max) /2);
+        if(comparator(array[guess], value) === 0)
+            return guess;
+        else if(comparator(array[guess], value) < 0)
+            min = guess + 1;
+        else
+            max = guess - 1;
+    }
+
+    return -1;
+};

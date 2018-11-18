@@ -111,7 +111,7 @@ public class BookController {
             int edition = json.get("edition").getAsInt();
             Publisher publisher = publisherRepository.findById(publisherId);
             if (publisher == null)
-                return errorResponse("no such publisher with id: "+publisherId, HttpStatus.UNPROCESSABLE_ENTITY);
+                return errorResponse("no such publisherEditing with id: "+publisherId, HttpStatus.UNPROCESSABLE_ENTITY);
             Work work = workRepository.findById(workId);
             if (work == null)
                 return errorResponse("no such work with id: "+workId, HttpStatus.UNPROCESSABLE_ENTITY);
@@ -139,7 +139,7 @@ public class BookController {
             long publisherId = json.get("publisherId").getAsLong();
             Publisher publisher = publisherRepository.findById(publisherId);
             if (publisher == null)
-                return errorResponse("no such publisher with id: " + publisherId, HttpStatus.UNPROCESSABLE_ENTITY);
+                return errorResponse("no such publisherEditing with id: " + publisherId, HttpStatus.UNPROCESSABLE_ENTITY);
             book.setPublisher(publisher);
             book.setEdition(edition);
             bookRepository.update(book);

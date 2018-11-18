@@ -1,14 +1,11 @@
 package com.jkojote.libraryserver.application.controllers.views;
 
-import com.jkojote.library.domain.model.author.Author;
-import com.jkojote.library.domain.shared.domain.DomainRepository;
 import com.jkojote.libraryserver.application.controllers.utils.Util;
 import com.jkojote.libraryserver.application.security.AdminAuthorizationService;
 import com.jkojote.libraryserver.application.security.AuthorizationRequired;
 import com.jkojote.libraryserver.application.security.AuthorizationService;
 import com.jkojote.libraryserver.config.WebConfig;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -36,6 +33,8 @@ public class AdminController {
 
     private static final Map<String, String> ENTITIES_HREF_VIEW;
 
+    private static final ModelAndView NOT_FOUND;
+
     static {
         ENTITIES_HREF = new HashMap<>();
         ENTITIES_HREF.put("authorsHref", WebConfig.URL + "adm/authors");
@@ -45,7 +44,12 @@ public class AdminController {
         ENTITIES_HREF.put("worksHref", WebConfig.URL + "adm/works");
         ENTITIES_HREF.put("createAuthor", WebConfig.URL + "adm/authors/creation");
         ENTITIES_HREF.put("createWork", WebConfig.URL + "adm/works/creation");
+        ENTITIES_HREF.put("createPublisher", WebConfig.URL + "adm/publishers/creation");
         ENTITIES_HREF_VIEW = Collections.unmodifiableMap(ENTITIES_HREF);
+        NOT_FOUND = new ModelAndView();
+        NOT_FOUND.setStatus(HttpStatus.NOT_FOUND);
+        NOT_FOUND.setViewName("not-found");
+        NOT_FOUND.addAllObjects(getEntitiesHrefs());
     }
 
     public static Map<String, String> getEntitiesHrefs() {
@@ -106,4 +110,7 @@ public class AdminController {
         return modelAndView;
     }
 
+    public static ModelAndView getNotFound() {
+        return NOT_FOUND;
+    }
 }

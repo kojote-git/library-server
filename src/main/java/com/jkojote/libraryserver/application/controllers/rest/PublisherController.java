@@ -13,7 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -29,8 +28,6 @@ public class PublisherController {
 
     private DomainRepository<Publisher> publisherRepository;
 
-    private DomainRepository<Book> bookRepository;
-
     private JsonConverter<Publisher> publisherJsonConverter;
 
     private JsonConverter<Book> bookJsonConverter;
@@ -40,20 +37,17 @@ public class PublisherController {
     @Autowired
     public PublisherController(@Qualifier("publisherRepository")
                                DomainRepository<Publisher> publisherRepository,
-                               @Qualifier("bookRepository")
-                               DomainRepository<Book> bookRepository,
                                @Qualifier("publisherJsonConverter")
                                JsonConverter<Publisher> publisherJsonConverter,
                                @Qualifier("bookJsonConverter")
                                JsonConverter<Book> bookJsonConverter) {
         this.publisherRepository = publisherRepository;
-        this.bookRepository = bookRepository;
         this.jsonParser = new JsonParser();
         this.publisherJsonConverter = publisherJsonConverter;
         this.bookJsonConverter = bookJsonConverter;
     }
 
-    @GetMapping("/")
+    @GetMapping("")
     @CrossOrigin
     public ResponseEntity<String> getAll() {
         List<Publisher> publishers = publisherRepository.findAll();
@@ -71,7 +65,7 @@ public class PublisherController {
     public ResponseEntity<String> getPublisher(@PathVariable("id") long id) {
         Publisher publisher = publisherRepository.findById(id);
         if (publisher == null)
-            return errorResponse("no such publisher with id " + id, HttpStatus.UNPROCESSABLE_ENTITY);
+            return errorResponse("no such publisherEditing with id " + id, HttpStatus.UNPROCESSABLE_ENTITY);
         String json = publisherJsonConverter.convertToString(publisher);
         return new ResponseEntity<>(json, HttpStatus.OK);
     }
@@ -86,7 +80,7 @@ public class PublisherController {
             long id = publisherRepository.nextId();
             Publisher publisher = new Publisher(id, name, new ArrayList<>());
             publisherRepository.save(publisher);
-            return new ResponseEntity<>("{\"id\""+id+"}", HttpStatus.CREATED);
+            return new ResponseEntity<>("{\"id\":"+id+"}", HttpStatus.CREATED);
         } catch (MalformedRequestException e) {
             return errorResponse(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
@@ -97,9 +91,9 @@ public class PublisherController {
     public ResponseEntity<String> deleting(HttpServletRequest req, @PathVariable("id") long id) {
         Publisher p = publisherRepository.findById(id);
         if (p == null)
-            return errorResponse("no such publisher with id "+id, HttpStatus.UNPROCESSABLE_ENTITY);
+            return errorResponse("no such publisherEditing with id "+id, HttpStatus.UNPROCESSABLE_ENTITY);
         publisherRepository.remove(p);
-        return responseMessage("publisher's been deleted", HttpStatus.OK);
+        return responseMessage("publisherEditing's been deleted", HttpStatus.OK);
     }
 
 
@@ -108,7 +102,7 @@ public class PublisherController {
     public ResponseEntity<String> getBooks(@PathVariable("id") long id) {
         Publisher p = publisherRepository.findById(id);
         if (p == null)
-            return errorResponse("nu such publisher with id "+id, HttpStatus.UNPROCESSABLE_ENTITY);
+            return errorResponse("nu such publisherEditing with id "+id, HttpStatus.UNPROCESSABLE_ENTITY);
         List<Book> books = p.getBooks();
         JsonObject responseJson = new JsonObject();
         JsonArray booksArray = new JsonArray();
@@ -125,18 +119,14 @@ public class PublisherController {
     throws IOException {
         Publisher publisher = publisherRepository.findById(id);
         if (publisher == null)
-            return errorResponse("no such publisher with id " + id, HttpStatus.UNPROCESSABLE_ENTITY);
+            return errorResponse("no such publisherEditing with id " + id, HttpStatus.UNPROCESSABLE_ENTITY);
         try (BufferedReader reader = req.getReader()) {
             JsonObject reqJson = jsonParser.parse(reader).getAsJsonObject();
             validateEditingRequestBody(reqJson);
             String name = reqJson.get("name").getAsString();
             publisher.setName(name);
-            if (reqJson.has("books")) {
-                JsonArray array = reqJson.get("books").getAsJsonArray();
-                compareAndEditBooks(publisher, array);
-            }
             publisherRepository.update(publisher);
-            return responseMessage("publisher's been updated", HttpStatus.OK);
+            return responseMessage("publisherEditing's been updated", HttpStatus.OK);
         } catch (MalformedRequestException e) {
             return errorResponse(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
@@ -149,14 +139,5 @@ public class PublisherController {
 
     private void validateEditingRequestBody(JsonObject json) {
         validateCreationRequestBody(json);
-    }
-
-    //TODO implement this later
-    private void compareAndEditBooks(Publisher publisher, JsonArray array) {
-        for (JsonElement e : array) {
-            JsonObject json = e.getAsJsonObject();
-            long bookId = json.get("id").getAsLong();
-            String action = json.get("action").getAsString();
-        }
     }
 }

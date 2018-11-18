@@ -40,7 +40,16 @@ main {
 
 .entity-attribute {
     max-width: 480px;
-    margin: 0 auto;
+    margin: 10px auto;
+}
+
+.entity-attribute-name {
+    font-size: 18px;
+    text-align: center;
+}
+
+.entity-attribute-additional {
+    color: rgb(100, 100, 100);
 }
 
 .submit-btn {
