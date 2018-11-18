@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org/">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="../../css/bootstrap-4.1.3-dist/css/bootstrap.min.css"
+          th:href="@{/css/bootstrap-4.1.3-dist/css/bootstrap.min.css}">
+    <link rel="stylesheet" href="../../css/common.css" th:href="@{/css/common.css}">
+    <link rel="stylesheet" href="../../css/book-instance.css" th:href="@{/css/book-instance.css}">
+</head>
+<body>
+<main class="container" ng-app="bookInstanceModule" ng-controller="BookInstanceController">
+    <div class="entity-form large-size-form">
+        <div class="entity-form-section entity-form-header">
+            Book Instance
+        </div>
+        <div class="entity-form-section row">
+            <div class="col-xs-12 col-md-4">
+                <div class="entity-attribute">
+                    <div class="entity-attribute-name">Cover</div>
+                    <div class="book-instance-cover-wrapper">
+                        <img id="cover" src="{{bookInstance._links.cover}}" class="book-instance-cover" alt="">
+                    </div>
+                    <div>
+                        <div class="upload-file-wrapper">
+                            <div id="cover-input-upload" class="upload-file">Select Image</div>
+                        </div>
+                        <input id="cover-input" type="file" class="hidden">
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-md-8">
+                <div class="entity-attribute">
+                    <div class="entity-attribute-name text-align-left">ISBN-13</div>
+                    <div class="entity-attribute-value"
+                         th:text="${bookInstance.isbn13.toString()}">978-123-123-123-3</div>
+                    <hr>
+                </div>
+                <div class="entity-attribute">
+                    <div class="entity-attribute-name text-align-left">Book</div>
+                    <div class="entity-attribute-value">
+                        <a href="{{book._links.adm}}" class="entity-attribute-ref">
+                            {{book.work.title}}
+                        </a>
+                    </div>
+                    <hr>
+                </div>
+                <div class="entity-attribute form-group">
+                    <div class="entity-attribute-name text-align-left">
+                        <label for="format">Format</label>
+                    </div>
+                    <div class="entity-attribute-value">
+                        <input id="format" type="text" class="form-control" th:value="${bookInstance.format.asString()}">
+                    </div>
+                    <hr>
+                </div>
+                <div class="entity-attribute form-group">
+                    <div class="entity-attribute-name text-align-left">
+                        File
+                    </div>
+                    <div class="entity-attribute-value">
+                        <div id="file-input-upload" class="upload-file">Upload File</div>
+                        <input id="file-input" type="file" class="hidden"/>
+                        <div class="upload-file">
+                            <a href="{{bookInstance._links.file}}" class="a-none">
+                                Download File
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="entity-form-section">
+            <div class="submit-buttons">
+                <div class="btn btn-primary" ng-click="submitEditing()">Submit</div>
+                <div class="btn btn-danger" ng-click="remove()">Remove</div>
+            </div>
+        </div>
+    </div>
+    <span class="hidden" id="book-instance-id" th:text="${bookInstance.id}">1</span>
+    <span class="hidden" id="book-id" th:text="${bookInstance.book.id}">3</span>
+</main>
+</body>
+<script src="../../js/angular.min.js" th:src="@{/js/angular.min.js}"></script>
+<script src="../../js/util.js" th:src="@{/js/util.js}"></script>
+<script src="../../js/common.js" th:src="@{/js/common.js}"></script>
+<script src="../../js/bookInstance/bookInstance.js" th:src="@{/js/bookInstance/bookInstance.js}"></script>
+</html>

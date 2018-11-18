@@ -22,13 +22,14 @@ bookModule.controller("BookController", ["$http", "$scope", function ($http, $sc
     workId.addEventListener("keyup", function (e) {
         getWork($http, $scope, workId.value);
     });
+    $scope.associationsAreHidden = true;
     $scope.submitEditing = function (e) {
         let id = getBookId(),
             publisher = publisherId.value,
-            edition = edition.value;
+            editionValue = edition.value;
         let requestBody = {
             publisherId: publisher,
-            edition: edition
+            edition: editionValue
         };
         $http
             .put(LISE_REST_URL + "books/" + id + "/editing", requestBody, {
@@ -36,6 +37,18 @@ bookModule.controller("BookController", ["$http", "$scope", function ($http, $sc
             }).then(r => {
                location.reload();
             });
+    };
+    $scope.loadInstances = function (e) {
+        if (!$scope.worksAreLoaded) {
+            toggleInstances();
+        }
+        $http
+            .get(LISE_REST_URL + "books/" + getBookId() + "/instances")
+            .then(function (resp) {
+                $scope.instances = resp.data.instances;
+                $scope.worksAreLoaded = true;
+            });
+        toggleInstances();
     };
     $scope.remove = function () {
         let id = getBookId();
@@ -47,4 +60,25 @@ bookModule.controller("BookController", ["$http", "$scope", function ($http, $sc
                 window.open(LISE_ADM_URL + "books", "_self", false);
             });
     };
+    $scope.getHidden = function () {
+        if ($scope.associationsAreHidden)
+            return "hidden";
+        else
+            return "";
+    };
+    function toggleInstances() {
+        if ($scope.associationsAreHidden) {
+            $scope.associationsAreHidden = false;
+            if (window.location.href.startsWith("file"))
+                document.getElementById("caret").src = "../../res/down-caret.png";
+            else
+                document.getElementById("caret").src = "/lise/res/down-caret.png";
+        } else {
+            $scope.associationsAreHidden = true;
+            if (window.location.href.startsWith("file"))
+                document.getElementById("caret").src = "../../res/up-caret.png";
+            else
+                document.getElementById("caret").src = "/lise/res/up-caret.png";
+        }
+    }
 }]);

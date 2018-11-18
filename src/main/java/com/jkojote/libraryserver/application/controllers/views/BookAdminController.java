@@ -3,10 +3,12 @@ package com.jkojote.libraryserver.application.controllers.views;
 import com.jkojote.library.domain.model.book.Book;
 import com.jkojote.library.domain.shared.domain.DomainRepository;
 import com.jkojote.libraryserver.application.security.AuthorizationRequired;
+import com.jkojote.libraryserver.config.WebConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -52,8 +54,22 @@ public class BookAdminController {
         }
         modelAndView.addObject("book", book);
         modelAndView.setStatus(HttpStatus.OK);
+        modelAndView.addObject("instanceCreationHref", WebConfig.URL + "adm/books/" + id + "/instanceCreation");
         modelAndView.addAllObjects(AdminController.getEntitiesHrefs());
         modelAndView.setViewName("book/book");
+        return modelAndView;
+    }
+
+    @GetMapping("{id}/instanceCreation")
+    @AuthorizationRequired
+    public ModelAndView bookInstanceCreation(HttpServletRequest req, @PathVariable("id") long id) {
+        Book book = bookRepository.findById(id);
+        if (book == null)
+            return AdminController.getNotFound();
+        ModelAndView modelAndView = new ModelAndView();
+        modelAndView.addObject("book", book);
+        modelAndView.addAllObjects(AdminController.getEntitiesHrefs());
+        modelAndView.setViewName("bookInstance/create");
         return modelAndView;
     }
 

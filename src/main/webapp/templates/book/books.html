@@ -14,7 +14,7 @@
 <header th:replace="fragments/header :: header"></header>
 <main class="container" ng-app="booksModule" ng-controller="BooksController">
     <div>
-        <a href="${createBook}">Creation</a>
+        <a th:href="${createBook}">Creation</a>
     </div>
     <table class="table">
         <thead>
@@ -47,5 +47,5 @@
 <script src="../../js/angular.min.js" th:src="@{/js/angular.min.js}"></script>
 <script th:src="@{/js/common.js}" src="../../js/common.js"></script>
 <script th:src="@{/js/util.js}" src="../../js/util.js"></script>
-<script src="../../js/book/books.js" th:src="@{/js/book/book.js}"></script>
+<script src="../../js/book/books.js" th:src="@{/js/book/books.js}"></script>
 </html>

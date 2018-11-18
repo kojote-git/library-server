@@ -25,6 +25,8 @@ public class BookInstanceJsonConverter implements JsonConverter<BookInstance> {
         JsonObject links = new JsonObject();
         links.add("adm", new JsonPrimitive(WebConfig.URL + "adm/instances/" + bookInstance.getId()));
         links.add("rest", new JsonPrimitive(WebConfig.URL + "rest/instances/" + bookInstance.getId()));
+        links.add("cover", new JsonPrimitive(WebConfig.URL + "rest/instances/" + bookInstance.getId() + "/cover"));
+        links.add("file", new JsonPrimitive(WebConfig.URL + "rest/instances/" + bookInstance.getId() + "/file"));
         res.add("id", new JsonPrimitive(bookInstance.getId()));
         res.add("format", new JsonPrimitive(bookInstance.getFormat().asString()));
         res.add("isbn13", new JsonPrimitive(bookInstance.getIsbn13().asString()));

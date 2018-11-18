@@ -30,9 +30,47 @@
             </div>
             <div class="entity-attribute form-group">
                 <label for="edition" class="entity-attribute-name">edition</label>
-                <input id="edition" class="form-control" type="text"/>
+                <input id="edition" class="form-control" type="text"th:value="${book.edition}"/>
             </div>
         </div>
+        <div class="entity-associations entity-form-section">
+            <div class="associations-header">
+                <a href="#" class="a-none" th:href="${instanceCreationHref}">
+                    <div class="caret-wrapper" ng-click="addInstance()">
+                        <img class="caret" src="../../res/plus.png"
+                             th:src="@{/res/plus.png}" alt="">
+                    </div>
+                </a>
+                Instances
+                <div class="caret-wrapper" ng-click="loadInstances()">
+                    <img id="caret" class="caret" src="../../res/up-caret.png"
+                         th:src="@{/res/up-caret.png}" alt="expand">
+                </div>
+            </div>
+            <div class="associations {{getHidden()}}">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>isbn13</th>
+                            <th>format</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="instance in instances">
+                            <td>
+                                <a href="{{instance._links.adm}}">{{instance.id}}</a>
+                            </td>
+                            <td>
+                                <a href="{{instance._links.adm}}" class="a-none">{{instance.isbn13}}</a>
+                            </td>
+                            <td>
+                                {{instance.format}}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         <div class="entity-form-section">
             <div class="submit-buttons">
                 <div class="btn btn-primary submit-btn" ng-click="submitEditing()">Submit</div>
@@ -40,7 +78,7 @@
             </div>
         </div>
     </div>
-    <span class="hidden" id="book-id" th:text="${book.id}">3</span>
+    <span class="hidden" id="book-id" th:text="${book.id}">4</span>
 </main>
 <script src="../../js/angular.min.js" th:src="@{/js/angular.min.js}"></script>
 <script th:src="@{/js/common.js}" src="../../js/common.js"></script>

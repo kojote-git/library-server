@@ -39,11 +39,11 @@ public class AdminController {
         ENTITIES_HREF = new HashMap<>();
         ENTITIES_HREF.put("authorsHref", WebConfig.URL + "adm/authors");
         ENTITIES_HREF.put("booksHref", WebConfig.URL + "adm/books");
-        ENTITIES_HREF.put("bookInstancesHref", WebConfig.URL + "adm/bookInstances");
         ENTITIES_HREF.put("publishersHref", WebConfig.URL + "adm/publishers");
         ENTITIES_HREF.put("worksHref", WebConfig.URL + "adm/works");
         ENTITIES_HREF.put("createAuthor", WebConfig.URL + "adm/authors/creation");
         ENTITIES_HREF.put("createWork", WebConfig.URL + "adm/works/creation");
+        ENTITIES_HREF.put("createBook", WebConfig.URL + "adm/books/creation");
         ENTITIES_HREF.put("createPublisher", WebConfig.URL + "adm/publishers/creation");
         ENTITIES_HREF_VIEW = Collections.unmodifiableMap(ENTITIES_HREF);
         NOT_FOUND = new ModelAndView();
