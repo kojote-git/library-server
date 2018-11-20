@@ -29,6 +29,14 @@
                     th:value="${book.basedOn.id}"/>
             </div>
             <div class="entity-attribute form-group">
+                <label for="title">title</label>
+                <input id="title" class="form-control" type="text" th:value="${book.title}"/>
+            </div>
+            <div class="entity-attribute form-group">
+                <label for="lang">language code</label>
+                <input id="lang" class="form-control" type="text" th:value="${book.language.toString()}">
+            </div>
+            <div class="entity-attribute form-group">
                 <label for="edition" class="entity-attribute-name">edition</label>
                 <input id="edition" class="form-control" type="text"th:value="${book.edition}"/>
             </div>

@@ -11,6 +11,7 @@ import com.jkojote.library.domain.shared.domain.DomainRepository;
 import com.jkojote.libraryserver.application.JsonConverter;
 import com.jkojote.libraryserver.application.exceptions.MalformedRequestException;
 import com.jkojote.libraryserver.application.security.AuthorizationRequired;
+import com.neovisionaries.i18n.LanguageCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
@@ -138,10 +139,16 @@ public class BookController {
             validateEditingRequestBody(json);
             int edition = json.get("edition").getAsInt();
             long publisherId = json.get("publisherId").getAsLong();
+            String title = json.get("title").getAsString();
+            LanguageCode lang = LanguageCode.getByCode(json.get("lang").getAsString());
+            if (lang == null)
+                return errorResponse("invalid language code", HttpStatus.UNPROCESSABLE_ENTITY);
             Publisher publisher = publisherRepository.findById(publisherId);
             if (publisher == null)
                 return errorResponse("no such publisherEditing with id: " + publisherId, HttpStatus.UNPROCESSABLE_ENTITY);
             book.setPublisher(publisher);
+            book.setLanguage(lang);
+            book.setTitle(title);
             book.setEdition(edition);
             bookRepository.update(book);
         } catch (MalformedRequestException e) {
@@ -162,7 +169,7 @@ public class BookController {
     }
 
     private void validateEditingRequestBody(JsonObject json) {
-        if (!json.has("publisherId") || !json.has("edition"))
+        if (!json.has("publisherId") || !json.has("edition") || !json.has("lang") || !json.has("title"))
             throw new MalformedRequestException();
     }
 

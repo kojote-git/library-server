@@ -11,6 +11,7 @@ import com.jkojote.libraryserver.application.JsonConverter;
 import com.jkojote.libraryserver.application.controllers.utils.EntityUrlParamsFilter;
 import com.jkojote.libraryserver.application.exceptions.MalformedRequestException;
 import com.jkojote.libraryserver.application.security.AuthorizationRequired;
+import com.neovisionaries.i18n.LanguageCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
@@ -210,8 +211,13 @@ public class WorkController {
             }
             String title = json.get("title").getAsString();
             Text t = OrdinaryText.of(json.get("description").getAsString());
+            String lang = json.get("lang").getAsString();
+            LanguageCode code = LanguageCode.getByCode(lang);
+            if (code == null)
+                return errorResponse("invalid language code", HttpStatus.UNPROCESSABLE_ENTITY);
             work.setDescription(t);
             work.changeTitle(title);
+            work.setLanguage(LanguageCode.getByCode(lang));
             workRepository.update(work);
             return responseMessage("work has been updated", HttpStatus.OK);
         } catch (MalformedRequestException e) {
@@ -230,7 +236,8 @@ public class WorkController {
     }
 
     private void validateCreationRequestBody(JsonObject json) {
-        if (!json.has("authors") || !json.has("subjects") || !json.has("title") || !json.has("description"))
+        if (!json.has("authors") || !json.has("subjects") || !json.has("title") || !json.has("description") ||
+                !json.has("lang"))
             throw new MalformedRequestException();
     }
 

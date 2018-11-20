@@ -4,7 +4,9 @@ bookModule.controller("BookController", ["$http", "$scope", function ($http, $sc
     const
         publisherId = document.getElementById("publisher-id"),
         workId = document.getElementById("work-id"),
-        edition = document.getElementById("edition");
+        edition = document.getElementById("edition"),
+        title = document.getElementById("title"),
+        lang = document.getElementById("lang");
     getPublisher($http, $scope, publisherId.value);
     getWork($http, $scope, workId.value);
     function getBookId() {
@@ -29,7 +31,9 @@ bookModule.controller("BookController", ["$http", "$scope", function ($http, $sc
             editionValue = edition.value;
         let requestBody = {
             publisherId: publisher,
-            edition: editionValue
+            edition: editionValue,
+            title: title.value,
+            lang: lang.value
         };
         $http
             .put(LISE_REST_URL + "books/" + id + "/editing", requestBody, {

@@ -137,7 +137,8 @@ workModule.controller("WorkController", ["$http", "$scope", function ($http, $sc
     $scope.submitEditing = function () {
         let requestBody = {
             title: document.getElementById("title").value,
-            description: document.getElementById("description").value
+            description: document.getElementById("description").value,
+            lang: document.getElementById("lang").value
         };
         subjectInput.disabled = true;
         if ($scope.authorsChanges.length !== 0)

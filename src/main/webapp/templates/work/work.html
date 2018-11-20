@@ -60,6 +60,10 @@
                     <input id="title" class="form-control" type="text" th:value="${work.title}"/>
                 </div>
                 <div class="form-group">
+                    <label for="lang">language code</label>
+                    <input id="lang" class="form-control" type="text" th:value="${work.language.toString()}"/>
+                </div>
+                <div class="form-group">
                     <label for="subject">subject</label>
                     <input id="subject" type="text" class="form-control">
                     <div class="association-labels">

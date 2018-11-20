@@ -28,6 +28,7 @@ public class WorkJsonConverter implements JsonConverter<Work> {
         links.add("rest", new JsonPrimitive(WebConfig.URL + "rest/works/" + work.getId()));
         res.add("id", new JsonPrimitive(work.getId()));
         res.add("title", new JsonPrimitive(work.getTitle()));
+        res.add("lang", new JsonPrimitive(work.getLanguage().toString()));
         res.add("_links", links);
         return res;
     }
