@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.jkojote.libraryserver.application.controllers.utils.Util.errorResponse;
+import static com.jkojote.libraryserver.application.controllers.utils.Util.responseEntityJson;
 import static com.jkojote.libraryserver.application.controllers.utils.Util.responseMessage;
 
 @RestController
@@ -69,7 +70,7 @@ public class BookController {
         for (Book b : books) {
             res.add(bookJsonConverter.convertToJson(b));
         }
-        return new ResponseEntity<>(res.toString(), HttpStatus.OK);
+        return responseEntityJson(res.toString(), HttpStatus.OK);
     }
 
     @GetMapping("{id}")
@@ -77,9 +78,9 @@ public class BookController {
     public ResponseEntity<String> getBook(@PathVariable("id") long id) {
         Book book = bookRepository.findById(id);
         if (book == null) {
-            return errorResponse("no such book with id: " + id, HttpStatus.UNPROCESSABLE_ENTITY);
+            return errorResponse("no such book with id: " + id, HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(bookJsonConverter.convertToString(book), HttpStatus.OK);
+        return responseEntityJson(bookJsonConverter.convertToString(book), HttpStatus.OK);
     }
 
     @GetMapping("{id}/instances")
@@ -87,7 +88,7 @@ public class BookController {
     public ResponseEntity<String> getBookInstances(@PathVariable("id") long id) {
         Book book = bookRepository.findById(id);
         if (book == null) {
-            return errorResponse("no such book with id: " + id, HttpStatus.UNPROCESSABLE_ENTITY);
+            return errorResponse("no such book with id: " + id, HttpStatus.NOT_FOUND);
         }
         List<BookInstance> instances = book.getBookInstances();
         JsonObject response = new JsonObject();
@@ -96,7 +97,7 @@ public class BookController {
             array.add(bookInstanceJsonConverter.convertToJson(bi));
         }
         response.add("instances", array);
-        return new ResponseEntity<>(response.toString(), HttpStatus.OK);
+        return responseEntityJson(response.toString(), HttpStatus.OK);
     }
 
     @AuthorizationRequired
@@ -111,14 +112,14 @@ public class BookController {
             int edition = json.get("edition").getAsInt();
             Publisher publisher = publisherRepository.findById(publisherId);
             if (publisher == null)
-                return errorResponse("no such publisherEditing with id: "+publisherId, HttpStatus.UNPROCESSABLE_ENTITY);
+                return errorResponse("no such publisherEditing with id: "+publisherId, HttpStatus.NOT_FOUND);
             Work work = workRepository.findById(workId);
             if (work == null)
-                return errorResponse("no such work with id: "+workId, HttpStatus.UNPROCESSABLE_ENTITY);
+                return errorResponse("no such work with id: "+workId, HttpStatus.NOT_FOUND);
             long id = bookRepository.nextId();
             Book book = new Book(id, work, publisher, edition, new ArrayList<>());
             bookRepository.save(book);
-            return new ResponseEntity<>("{\"id\":"+id+"}", HttpStatus.CREATED);
+            return responseEntityJson("{\"id\":"+id+"}", HttpStatus.CREATED);
         } catch (MalformedRequestException e) {
             return errorResponse(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
@@ -155,7 +156,7 @@ public class BookController {
     public ResponseEntity<String> deleting(@PathVariable("id") long id, HttpServletRequest req) {
         Book book = bookRepository.findById(id);
         if (book == null)
-            return errorResponse("no such book with id: "+id, HttpStatus.UNPROCESSABLE_ENTITY);
+            return errorResponse("no such book with id: "+id, HttpStatus.NOT_FOUND);
         bookRepository.remove(book);
         return responseMessage("book's been deleted", HttpStatus.OK);
     }

@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
 import javax.servlet.http.Cookie;
@@ -14,15 +15,9 @@ import java.util.Random;
 
 public final class Util {
 
-    private static final HttpHeaders DEFAULT_HEADERS = new HttpHeaders();
-
     private static final String ALPHA_NUMERIC = "abcdefghijklmnopqrstyvwxyz0123456789";
 
     private static final Random random = new Random(9999999);
-
-    static {
-        DEFAULT_HEADERS.set("Content-Type", "application/json");
-    }
 
     public static ResponseEntity<String> errorResponse(String message,
                                                        HttpHeaders headers,
@@ -34,6 +29,12 @@ public final class Util {
         return new ResponseEntity<>(json.toString(), headers, status);
     }
 
+    private static HttpHeaders jsonUtf8Headers() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
+        return headers;
+    }
+
     public static ResponseEntity<String> responseMessage(String message, HttpHeaders headers, HttpStatus status) {
         JsonObject json = new JsonObject();
         if (message == null)
@@ -42,12 +43,16 @@ public final class Util {
         return new ResponseEntity<>(json.toString(), headers, status);
     }
 
+    public static ResponseEntity<String> responseEntityJson(String message, HttpStatus status) {
+        return new ResponseEntity<>(message, jsonUtf8Headers(), status);
+    }
+
     public static ResponseEntity<String> errorResponse(String message, HttpStatus status) {
-        return errorResponse(message, DEFAULT_HEADERS, status);
+        return errorResponse(message, jsonUtf8Headers(), status);
     }
 
     public static ResponseEntity<String> responseMessage(String message, HttpStatus status) {
-        return responseMessage(message, DEFAULT_HEADERS, status);
+        return responseMessage(message, jsonUtf8Headers(), status);
     }
 
     public static Optional<String> readCookie(String key, HttpServletRequest request) {

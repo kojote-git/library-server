@@ -65,8 +65,6 @@ public class AuthorController {
     @PostMapping("creation")
     public ResponseEntity<String> creation(HttpServletRequest req) throws IOException {
         long id = authorRepository.nextId();
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Content-Type", "application/json");
         try (BufferedReader reader = req.getReader()) {
             JsonObject json = jsonParser.parse(reader).getAsJsonObject();
             json.add("id", new JsonPrimitive(id));
@@ -80,7 +78,7 @@ public class AuthorController {
                     .withName(name)
                     .build();
             authorRepository.save(author);
-            return new ResponseEntity<>("{\"id\":"+id+"}", headers, HttpStatus.CREATED);
+            return responseEntityJson("{\"id\":"+id+"}", HttpStatus.CREATED);
         } catch (MalformedRequestException e) {
             return errorResponse(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
@@ -96,30 +94,25 @@ public class AuthorController {
         for (Author a : authors)
             array.add(authorJsonConverter.convertToJson(a));
         resp.add("authors", array);
-        return new ResponseEntity<>(resp.toString(), HttpStatus.OK);
+        return responseEntityJson(resp.toString(), HttpStatus.OK);
     }
 
     @GetMapping("{id}")
     @CrossOrigin
     public ResponseEntity<String> getAuthor(@PathVariable("id") long id) {
         Author author = authorRepository.findById(id);
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Content-Type", "application/json");
         if (author == null) {
-            return errorResponse("no author with such id: " + id, headers, HttpStatus.UNPROCESSABLE_ENTITY);
+            return errorResponse("no author with such id: " + id, HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(authorJsonConverter.convertToString(author),
-                headers, HttpStatus.OK);
+        return responseEntityJson(authorJsonConverter.convertToString(author), HttpStatus.OK);
     }
 
     @GetMapping("{id}/works")
     @CrossOrigin
     public ResponseEntity<String> getWorks(@PathVariable("id") long id) {
         Author author = authorRepository.findById(id);
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Content-Type", "application/json");
         if (author == null) {
-            return errorResponse("no author with such id: " + id, HttpStatus.UNPROCESSABLE_ENTITY);
+            return errorResponse("no author with such id: " + id, HttpStatus.NOT_FOUND);
         }
         JsonObject json = new JsonObject();
         JsonArray array = new JsonArray();
@@ -127,7 +120,7 @@ public class AuthorController {
             array.add(workJsonConverter.convertToJson(w));
         }
         json.add("works", array);
-        return new ResponseEntity<>(json.toString(), headers, HttpStatus.OK);
+        return responseEntityJson(json.toString(), HttpStatus.OK);
     }
 
     @AuthorizationRequired
@@ -135,7 +128,7 @@ public class AuthorController {
     public ResponseEntity<String> editAuthor(@PathVariable("id") long id, HttpServletRequest req) {
         Author a = authorRepository.findById(id);
         if (a == null) {
-            return errorResponse("no author with such id:" + id, HttpStatus.UNPROCESSABLE_ENTITY);
+            return errorResponse("no author with such id:" + id, HttpStatus.NOT_FOUND);
         }
         try {
             JsonObject json;
@@ -174,7 +167,7 @@ public class AuthorController {
     public ResponseEntity<String> deleteAuthor(@PathVariable("id") long id, HttpServletRequest req) {
         Author a = authorRepository.findById(id);
         if (a == null)
-            return errorResponse("no such author with id " + id, HttpStatus.UNPROCESSABLE_ENTITY);
+            return errorResponse("no such author with id " + id, HttpStatus.NOT_FOUND);
         authorRepository.remove(a);
         return responseMessage("author's been deleted", HttpStatus.OK);
     }

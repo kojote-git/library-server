@@ -1,5 +1,6 @@
-package com.jkojote.libraryserver.application.controllers.utils.infrastructure;
+package com.jkojote.libraryserver.application.controllers.utils.infrastructure.filters;
 
+import com.jkojote.libraryserver.application.controllers.utils.infrastructure.MultiReadHttpServletRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.GenericFilterBean;
 
@@ -12,6 +13,7 @@ import java.io.IOException;
 
 @Component
 public class CachingRequestBodyFilter extends GenericFilterBean {
+
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
     throws IOException, ServletException {

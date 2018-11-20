@@ -9,4 +9,6 @@ import org.springframework.context.annotation.Import;
 @Import(PersistenceConfig.class)
 @ComponentScan("com.jkojote.libraryserver.application")
 public class MvcConfig {
+
+
 }

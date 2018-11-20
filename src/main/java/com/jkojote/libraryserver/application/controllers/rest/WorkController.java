@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.jkojote.libraryserver.application.controllers.utils.Util.errorResponse;
+import static com.jkojote.libraryserver.application.controllers.utils.Util.responseEntityJson;
 import static com.jkojote.libraryserver.application.controllers.utils.Util.responseMessage;
 
 @RestController
@@ -35,8 +36,6 @@ public class WorkController {
     private DomainRepository<Work> workRepository;
 
     private DomainRepository<Author> authorRepository;
-
-    private HttpHeaders defaultHeaders;
 
     private JsonParser jsonParser;
 
@@ -60,11 +59,9 @@ public class WorkController {
         this.authorRepository = authorRepository;
         this.workRepository = workRepository;
         this.jsonParser = new JsonParser();
-        this.defaultHeaders = new HttpHeaders();
         this.workJsonConverter = workJsonConverter;
         this.authorJsonConverter = authorJsonConverter;
         this.workFilter = workFilter;
-        defaultHeaders.set("Content-Type", "application/json");
     }
 
     @GetMapping("")
@@ -78,7 +75,7 @@ public class WorkController {
         for (Work w : works) {
             array.add(workJsonConverter.convertToJson(w));
         }
-        return new ResponseEntity<>(obj.toString(), HttpStatus.OK);
+        return responseEntityJson(obj.toString(), HttpStatus.OK);
     }
 
     /**
@@ -111,7 +108,7 @@ public class WorkController {
                 long id = authorId.getAsLong();
                 Author a = authorRepository.findById(id);
                 if (a == null)
-                    return errorResponse("no author with such id exists: " + id, HttpStatus.UNPROCESSABLE_ENTITY);
+                    return errorResponse("no author with such id exists: " + id, HttpStatus.NOT_FOUND);
                 authors.add(a);
             }
             long workId = workRepository.nextId();
@@ -127,9 +124,9 @@ public class WorkController {
                 work.addSubject(Subject.of(subject.getAsString()));
             }
             workRepository.save(work);
-            return new ResponseEntity<>("{\"id\":\""+workId+"\"}", HttpStatus.CREATED);
+            return responseEntityJson("{\"id\":\""+workId+"\"}", HttpStatus.CREATED);
         } catch (MalformedRequestException e) {
-            return errorResponse(e.getMessage(), HttpStatus.BAD_REQUEST);
+            return errorResponse(e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
 
@@ -138,8 +135,7 @@ public class WorkController {
     public ResponseEntity<String> getWork(@PathVariable("id") long id) {
         Work work = workRepository.findById(id);
         if (work == null) {
-            return errorResponse("work with specified id doesn't exist yet", defaultHeaders,
-                    HttpStatus.NOT_FOUND);
+            return errorResponse("work with specified id doesn't exist yet", HttpStatus.NOT_FOUND);
         }
 
         return new ResponseEntity<>(workJsonConverter.convertToString(work), HttpStatus.OK);
@@ -150,13 +146,12 @@ public class WorkController {
     public ResponseEntity<String> getDescription(@PathVariable("id") long id) {
         Work work = workRepository.findById(id);
         if (work == null) {
-            return errorResponse("work with specified id doesn't exist yet", defaultHeaders,
-                    HttpStatus.UNPROCESSABLE_ENTITY);
+            return errorResponse("work with specified id doesn't exist yet", HttpStatus.NOT_FOUND);
         }
         JsonObject json = new JsonObject();
         json.add("id", new JsonPrimitive(id));
         json.add("description", new JsonPrimitive(work.getDescription().toString()));
-        return new ResponseEntity<>(json.toString(), defaultHeaders, HttpStatus.OK);
+        return responseEntityJson(json.toString(), HttpStatus.OK);
     }
 
     @GetMapping("{id}/authors")
@@ -164,8 +159,7 @@ public class WorkController {
     public ResponseEntity<String> getAuthors(@PathVariable("id") long id) {
         Work work = workRepository.findById(id);
         if (work == null) {
-            return errorResponse("no such work with id: " + id, defaultHeaders,
-                    HttpStatus.UNPROCESSABLE_ENTITY);
+            return errorResponse("no such work with id: " + id, HttpStatus.NOT_FOUND);
         }
         JsonObject json = new JsonObject();
         JsonArray array = new JsonArray();
@@ -173,7 +167,7 @@ public class WorkController {
             array.add(authorJsonConverter.convertToJson(a));
         }
         json.add("authors", array);
-        return new ResponseEntity<>(json.toString(), defaultHeaders, HttpStatus.OK);
+        return responseEntityJson(json.toString(), HttpStatus.OK);
     }
 
     @GetMapping("{id}/subjects")
@@ -181,7 +175,7 @@ public class WorkController {
     public ResponseEntity<String> getSubjects(@PathVariable("id") long id) {
         Work work = workRepository.findById(id);
         if (work == null) {
-            return errorResponse("no such work with id: " + id, HttpStatus.UNPROCESSABLE_ENTITY);
+            return errorResponse("no such work with id: " + id, HttpStatus.NOT_FOUND);
         }
         JsonObject json = new JsonObject();
         JsonArray array = new JsonArray();
@@ -189,7 +183,7 @@ public class WorkController {
             array.add(s.asString());
         }
         json.add("subjects", array);
-        return new ResponseEntity<>(json.toString(), defaultHeaders, HttpStatus.OK);
+        return responseEntityJson(json.toString(), HttpStatus.OK);
     }
 
     @PutMapping("{id}/editing")
@@ -199,8 +193,7 @@ public class WorkController {
         try {
             Work work = workRepository.findById(id);
             if (work == null) {
-                return errorResponse("no such work with id: " + id, defaultHeaders,
-                        HttpStatus.UNPROCESSABLE_ENTITY);
+                return errorResponse("no such work with id: " + id, HttpStatus.NOT_FOUND);
             }
             JsonObject json;
             try (BufferedReader reader = req.getReader()) {
@@ -222,7 +215,7 @@ public class WorkController {
             workRepository.update(work);
             return responseMessage("work has been updated", HttpStatus.OK);
         } catch (MalformedRequestException e) {
-            return errorResponse(e.getMessage(), HttpStatus.BAD_REQUEST);
+            return errorResponse(e.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
         }
     }
 
@@ -231,7 +224,7 @@ public class WorkController {
     public ResponseEntity<String> delete(HttpServletRequest req, @PathVariable("id") long id) {
         Work work = workRepository.findById(id);
         if (work == null)
-            return errorResponse("work with such id"+id+"doesn't exists", HttpStatus.UNPROCESSABLE_ENTITY);
+            return errorResponse("work with such id"+id+"doesn't exists", HttpStatus.NOT_FOUND);
         workRepository.remove(work);
         return responseMessage("work has been successfully deleted", HttpStatus.OK);
     }

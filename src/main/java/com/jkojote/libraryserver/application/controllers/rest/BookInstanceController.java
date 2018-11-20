@@ -29,6 +29,7 @@ import java.sql.SQLException;
 import java.util.Arrays;
 
 import static com.jkojote.libraryserver.application.controllers.utils.Util.errorResponse;
+import static com.jkojote.libraryserver.application.controllers.utils.Util.responseEntityJson;
 import static com.jkojote.libraryserver.application.controllers.utils.Util.responseMessage;
 import static org.springframework.http.HttpStatus.*;
 
@@ -63,7 +64,7 @@ public class BookInstanceController {
         BookInstance bi = bookInstanceRepository.findById(id);
         if (bi == null)
             return errorResponse("no such book with id: "+id, NOT_FOUND);
-        return new ResponseEntity<>(biJsonConverter.convertToString(bi), OK);
+        return responseEntityJson(biJsonConverter.convertToString(bi), OK);
     }
 
     @GetMapping("{id}/file")
@@ -188,7 +189,7 @@ public class BookInstanceController {
             bi.setFormat(format);
             bookInstanceRepository.update(bi);
         } catch (MalformedRequestException e) {
-            return errorResponse(e.getMessage(), BAD_REQUEST);
+            return errorResponse(e.getMessage(), UNPROCESSABLE_ENTITY);
         }
         return responseMessage("book instance has been successfully updated", HttpStatus.OK);
     }

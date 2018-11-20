@@ -21,7 +21,7 @@ public class ThymeleafConfig {
         resolver.setPrefix("/templates/");
         resolver.setSuffix(".html");
         resolver.setTemplateMode(TemplateMode.HTML);
-
+        resolver.setCharacterEncoding("UTF-8");
         return resolver;
     }
 
@@ -38,6 +38,7 @@ public class ThymeleafConfig {
         ThymeleafViewResolver resolver = new ThymeleafViewResolver();
         resolver.setTemplateEngine(templateEngine());
         resolver.setOrder(1);
+        resolver.setCharacterEncoding("UTF-8");
         return resolver;
     }
 
