@@ -127,7 +127,7 @@ public class WorkController {
             workRepository.save(work);
             return responseEntityJson("{\"id\":\""+workId+"\"}", HttpStatus.CREATED);
         } catch (MalformedRequestException e) {
-            return errorResponse(e.getMessage(), HttpStatus.NOT_FOUND);
+            return errorResponse(e.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
         }
     }
 
@@ -139,7 +139,7 @@ public class WorkController {
             return errorResponse("work with specified id doesn't exist yet", HttpStatus.NOT_FOUND);
         }
 
-        return new ResponseEntity<>(workJsonConverter.convertToString(work), HttpStatus.OK);
+        return responseEntityJson(workJsonConverter.convertToString(work), HttpStatus.OK);
     }
 
     @GetMapping("{id}/description")
@@ -236,8 +236,7 @@ public class WorkController {
     }
 
     private void validateCreationRequestBody(JsonObject json) {
-        if (!json.has("authors") || !json.has("subjects") || !json.has("title") || !json.has("description") ||
-                !json.has("lang"))
+        if (!json.has("authors") || !json.has("subjects") || !json.has("title") || !json.has("description"))
             throw new MalformedRequestException();
     }
 

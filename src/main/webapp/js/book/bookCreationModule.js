@@ -25,7 +25,7 @@ bookCreationModule.controller("BookCreationController", ["$http", "$scope", func
             publisherId: publisherId.value,
             workId: workId.value,
             edition: edition.value
-        }
+        };
         $http
             .post(LISE_REST_URL + "books/creation", requestBody, {
                 headers: getRequestHeaders()
