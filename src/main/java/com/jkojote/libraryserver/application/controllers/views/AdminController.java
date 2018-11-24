@@ -1,12 +1,19 @@
 package com.jkojote.libraryserver.application.controllers.views;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.jkojote.libraryserver.application.QueryRunner;
 import com.jkojote.libraryserver.application.controllers.utils.Util;
 import com.jkojote.libraryserver.application.security.AdminAuthorizationService;
 import com.jkojote.libraryserver.application.security.AuthorizationRequired;
 import com.jkojote.libraryserver.application.security.AuthorizationService;
 import com.jkojote.libraryserver.config.WebConfig;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -14,11 +21,15 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import static com.jkojote.libraryserver.application.controllers.utils.Util.errorResponse;
+import static com.jkojote.libraryserver.application.controllers.utils.Util.responseEntityJson;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
@@ -41,6 +52,7 @@ public class AdminController {
         ENTITIES_HREF.put("booksHref", WebConfig.URL + "adm/books");
         ENTITIES_HREF.put("publishersHref", WebConfig.URL + "adm/publishers");
         ENTITIES_HREF.put("worksHref", WebConfig.URL + "adm/works");
+        ENTITIES_HREF.put("queryHref", WebConfig.URL + "adm/query");
         ENTITIES_HREF.put("createAuthor", WebConfig.URL + "adm/authors/creation");
         ENTITIES_HREF.put("createWork", WebConfig.URL + "adm/works/creation");
         ENTITIES_HREF.put("createBook", WebConfig.URL + "adm/books/creation");
@@ -54,6 +66,17 @@ public class AdminController {
 
     public static Map<String, String> getEntitiesHrefs() {
         return ENTITIES_HREF_VIEW;
+    }
+
+    private JsonParser parser;
+
+    private QueryRunner queryRunner;
+
+    @Autowired
+    public AdminController(@Qualifier("queryRunner")
+                           QueryRunner queryRunner) {
+        this.parser = new JsonParser();
+        this.queryRunner = queryRunner;
     }
 
     @GetMapping
@@ -72,9 +95,9 @@ public class AdminController {
         String login = req.getHeader("Login");
         String password = req.getHeader("Password");
         if (login == null || password == null)
-            return Util.errorResponse("no credentials present", UNAUTHORIZED);
+            return errorResponse("no credentials present", UNAUTHORIZED);
         if (!authorizationService.authorize(login, password))
-            return Util.errorResponse("wrong credentials", UNAUTHORIZED);
+            return errorResponse("wrong credentials", UNAUTHORIZED);
         String accessToken = Util.randomAlphaNumeric();
         authorizationService.setToken(login, accessToken);
         resp.addHeader("Access-token", accessToken);
@@ -108,6 +131,32 @@ public class AdminController {
         modelAndView.setViewName("admin-page");
         modelAndView.addAllObjects(getEntitiesHrefs());
         return modelAndView;
+    }
+
+    @GetMapping("query")
+    @AuthorizationRequired
+    public ModelAndView queryPage(HttpServletRequest req) {
+        ModelAndView modelAndView = new ModelAndView();
+        modelAndView.setViewName("query-page");
+        modelAndView.addAllObjects(getEntitiesHrefs());
+        return modelAndView;
+    }
+
+    @PostMapping("query")
+    @ResponseBody
+    @CrossOrigin
+    @AuthorizationRequired
+    public ResponseEntity<String> doSql(HttpServletRequest req)
+    throws IOException {
+        try (BufferedReader reader = req.getReader()) {
+            JsonObject json = parser.parse(reader).getAsJsonObject();
+            if (!json.has("query"))
+                return errorResponse("malformed request", BAD_REQUEST);
+            JsonObject res = queryRunner.runQuery(json.get("query").getAsString());
+            return responseEntityJson(res.toString(), OK);
+        } catch (DataAccessException e) {
+            return errorResponse(e.getMessage(), BAD_REQUEST);
+        }
     }
 
     public static ModelAndView getNotFound() {
