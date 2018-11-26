@@ -7,8 +7,10 @@ import com.jkojote.library.domain.shared.domain.DomainRepository;
 import com.jkojote.library.values.Name;
 import com.jkojote.libraryserver.application.JsonConverter;
 import com.jkojote.libraryserver.application.QueryToJsonRunner;
+import com.jkojote.libraryserver.application.controllers.utils.Context;
 import com.jkojote.libraryserver.application.controllers.utils.EntityUrlParamsFilter;
 import com.jkojote.libraryserver.application.controllers.utils.Queries;
+import com.jkojote.libraryserver.application.controllers.utils.QueryStringParser;
 import com.jkojote.libraryserver.application.exceptions.MalformedRequestException;
 import com.jkojote.libraryserver.application.security.AuthorizationRequired;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,13 +18,19 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.thymeleaf.ITemplateEngine;
+import org.thymeleaf.context.IContext;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Spliterator;
+import java.util.stream.StreamSupport;
 
 import static com.jkojote.libraryserver.application.controllers.utils.Util.*;
+import static java.util.stream.Collectors.toList;
 
 @RestController
 @RequestMapping("/rest/authors")
@@ -41,6 +49,8 @@ public class AuthorController {
 
     private QueryToJsonRunner queryRunner;
 
+    private ITemplateEngine templateEngine;
+
     private JsonParser jsonParser;
 
     @Autowired
@@ -55,7 +65,8 @@ public class AuthorController {
             JsonConverter<Work> workJsonConverter,
             @Qualifier("authorFilter")
             EntityUrlParamsFilter<Author> authorFilter,
-            QueryToJsonRunner queryRunner) {
+            QueryToJsonRunner queryRunner,
+            ITemplateEngine templateEngine) {
         this.authorRepository = authorRepository;
         this.workRepository = workRepository;
         this.jsonParser = new JsonParser();
@@ -63,6 +74,7 @@ public class AuthorController {
         this.workJsonConverter = workJsonConverter;
         this.authorFilter = authorFilter;
         this.queryRunner = queryRunner;
+        this.templateEngine = templateEngine;
     }
 
     @AuthorizationRequired
@@ -126,6 +138,22 @@ public class AuthorController {
     public ResponseEntity<String> report() {
         JsonObject resp = queryRunner.runQuery(Queries.AUTHORS_REPORT);
         return responseEntityJson(resp.toString(), HttpStatus.OK);
+    }
+
+    @GetMapping("report/html")
+    @CrossOrigin
+    public ResponseEntity<String> reportHtml() {
+        JsonObject resp = queryRunner.runQuery(Queries.AUTHORS_REPORT);
+        Spliterator<JsonElement> iterator = resp.getAsJsonArray("rows").spliterator();
+        List<List<String>> rows = StreamSupport.stream(iterator, false)
+                .map(e -> StreamSupport.stream(e.getAsJsonArray().spliterator(), false)
+                    .map(JsonElement::getAsString).collect(toList()))
+                .collect(toList());
+        IContext ctx = Context.builder()
+                .add("rows", rows)
+                .build();
+        String res = templateEngine.process("author/report", ctx);
+        return responseHtml(res, HttpStatus.OK);
     }
 
     @GetMapping("{id}/works")

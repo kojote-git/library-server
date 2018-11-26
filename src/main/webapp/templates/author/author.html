@@ -40,73 +40,105 @@
         </li>
     </ul>
 </header>
-<main class="container" ng-app="authorModule" ng-controller="AuthorController">
-    <div class="entity-form medium-size-form">
-        <div class="entity-form-header entity-form-section">
-            Author
+<main class="container-fluid" ng-app="authorModule" ng-controller="AuthorController">
+    <div class="row">
+        <div class="col-xs-12 col-md-6">
+            <div class="entity-form center medium-size-form">
+                <div class="entity-form-header entity-form-section">
+                    Author
+                </div>
+                <div class="entity-attributes entity-form-section">
+                    <div class="entity-attribute">
+                        <div class="form-group">
+                            <label for="first-name">first name</label>
+                            <input id="first-name" class="form-control" type="text"
+                                   th:value="${author.firstName}"/>
+                        </div>
+                    </div>
+                    <div class="entity-attribute">
+                        <div class="form-group">
+                            <label for="middle-name">middle name</label>
+                            <input id="middle-name" class="form-control" type="text"
+                                   th:value="${author.middleName}"/>
+                        </div>
+                    </div>
+                    <div class="entity-attribute">
+                        <div class="form-group">
+                            <label for="last-name">last name</label>
+                            <input id="last-name" class="form-control"
+                                   th:value="${author.lastName}"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="entity-associations entity-form-section">
+                    <div class="associations-header">
+                        <div class="caret-wrapper" ng-click="addWork()">
+                            <img class="caret" src="../../res/plus.png"
+                                 th:src="@{/res/plus.png}" alt="">
+                        </div>
+                        Works
+                        <div class="caret-wrapper" ng-click="loadWorks()">
+                            <img id="caret" class="caret" src="../../res/up-caret.png"
+                                 th:src="@{/res/up-caret.png}" alt="expand">
+                        </div>
+                    </div>
+                    <div id="work-associations" class="associations {{getHidden()}}">
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th class="remove-association-control-header">X</th>
+                                <th>ID</th>
+                                <th>title</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr ng-repeat="work in works">
+                                <td class="remove-association-control" ng-click="removeWork($event)"
+                                    data-work-id="{{work.id}}">
+                                    X
+                                </td>
+                                <td>
+                                    <a href="{{work._links.adm}}">{{work.id}}</a>
+                                </td>
+                                <td><span class="{{getClassForAssociation(work.id)}}">{{work.title}}</span></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="entity-form-section submit-buttons">
+                    <div id="submit-author" class="btn btn-primary submit-btn" ng-click="submitEditing()">Submit</div>
+                    <div id="remove-author" class="btn btn-danger submit-btn" ng-click="remove()">Delete</div>
+                </div>
+            </div>
         </div>
-        <div class="entity-attributes entity-form-section">
-            <div class="entity-attribute">
-                <div class="form-group">
-                    <label for="first-name">first name</label>
-                    <input id="first-name" class="form-control" type="text"
-                           th:value="${author.firstName}"/>
+        <div class="col-xs-12 col-md-6">
+            <div class="statistics-container">
+                <div class="statistics-container-header">
+                    Download Statistics
+                </div>
+                <div class="statistics-contents">
+                    <table class="stats-table">
+                        <thead>
+                            <tr class="stats-table-header-row">
+                                <th
+                                    class="stats-table-header"
+                                    ng-repeat="column in stats.columns">
+                                    {{column}}
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="row in stats.rows">
+                                <td class="stats-table-cell"
+                                    ng-repeat="rowValue in row">
+                                    {{rowValue}}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
-            <div class="entity-attribute">
-                <div class="form-group">
-                    <label for="middle-name">middle name</label>
-                    <input id="middle-name" class="form-control" type="text"
-                           th:value="${author.middleName}"/>
-                </div>
-            </div>
-            <div class="entity-attribute">
-                <div class="form-group">
-                    <label for="last-name">last name</label>
-                    <input id="last-name" class="form-control"
-                           th:value="${author.lastName}"/>
-                </div>
-            </div>
-        </div>
-        <div class="entity-associations entity-form-section">
-            <div class="associations-header">
-                <div class="caret-wrapper" ng-click="addWork()">
-                    <img class="caret" src="../../res/plus.png"
-                         th:src="@{/res/plus.png}" alt="">
-                </div>
-                Works
-                <div class="caret-wrapper" ng-click="loadWorks()">
-                    <img id="caret" class="caret" src="../../res/up-caret.png"
-                         th:src="@{/res/up-caret.png}" alt="expand">
-                </div>
-            </div>
-            <div id="work-associations" class="associations {{getHidden()}}">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th class="remove-association-control-header">X</th>
-                            <th>ID</th>
-                            <th>title</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr ng-repeat="work in works">
-                            <td class="remove-association-control" ng-click="removeWork($event)"
-                                data-work-id="{{work.id}}">
-                                X
-                            </td>
-                            <td>
-                                <a href="{{work._links.adm}}">{{work.id}}</a>
-                            </td>
-                            <td><span class="{{getClassForAssociation(work.id)}}">{{work.title}}</span></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        <div class="entity-form-section submit-buttons">
-            <div id="submit-author" class="btn btn-primary submit-btn" ng-click="submitEditing()">Submit</div>
-            <div id="remove-author" class="btn btn-danger submit-btn" ng-click="remove()">Delete</div>
         </div>
     </div>
     <span id="author-id" class="hidden" th:text="${author.id}">1</span>

@@ -85,4 +85,9 @@ bookModule.controller("BookController", ["$http", "$scope", function ($http, $sc
                 document.getElementById("caret").src = "/lise/res/up-caret.png";
         }
     }
+    $http
+        .get(LISE_REST_URL + "books/" + getBookId() + "/dstats")
+        .then(function (resp) {
+            $scope.stats = resp.data;
+        })
 }]);

@@ -12,81 +12,115 @@
 </head>
 <body>
 <header th:replace="fragments/header :: header"></header>
-<main class="container" ng-app="bookModule" ng-controller="BookController">
-    <div class="entity-form medium-size-form">
-        <div class="entity-form-section entity-form-header">Book</div>
-        <div class="entity-form-section">
-            <div class="entity-attribute form-group">
-                <label for="publisher-id" class="entity-attribute-name">publisher</label>
-                <div class="entity-attribute-additional"><span class="font-weight-bold">Name: </span>{{publisher.name}}</div>
-                <input id="publisher-id" class="form-control" type="text" value="2"
-                    th:value="${book.publisher.id}">
-            </div>
-            <div class="entity-attribute form-group">
-                <label for="work-id" class="entity-attribute-name">work</label>
-                <div class="entity-attribute-additional"><span class="font-weight-bold">Title: </span>{{work.title}}</div>
-                <input id="work-id" class="form-control" type="text" value="1" disabled
-                    th:value="${book.basedOn.id}"/>
-            </div>
-            <div class="entity-attribute form-group">
-                <label for="title">title</label>
-                <input id="title" class="form-control" type="text" th:value="${book.title}"/>
-            </div>
-            <div class="entity-attribute form-group">
-                <label for="lang">language code</label>
-                <input id="lang" class="form-control" type="text" th:value="${book.language.toString()}">
-            </div>
-            <div class="entity-attribute form-group">
-                <label for="edition" class="entity-attribute-name">edition</label>
-                <input id="edition" class="form-control" type="text"th:value="${book.edition}"/>
-            </div>
-        </div>
-        <div class="entity-associations entity-form-section">
-            <div class="associations-header">
-                <a href="#" class="a-none" th:href="${instanceCreationHref}">
-                    <div class="caret-wrapper" ng-click="addInstance()">
-                        <img class="caret" src="../../res/plus.png"
-                             th:src="@{/res/plus.png}" alt="">
+<main class="container-fluid" ng-app="bookModule" ng-controller="BookController">
+    <div class="row">
+        <div class="col-xs-12 col-md-6">
+            <div class="entity-form center medium-size-form">
+                <div class="entity-form-section entity-form-header">Book</div>
+                <div class="entity-form-section">
+                    <div class="entity-attribute form-group">
+                        <label for="publisher-id" class="entity-attribute-name">publisher</label>
+                        <div class="entity-attribute-additional"><span class="font-weight-bold">Name: </span>{{publisher.name}}</div>
+                        <input id="publisher-id" class="form-control" type="text" value="2"
+                               th:value="${book.publisher.id}">
                     </div>
-                </a>
-                Instances
-                <div class="caret-wrapper" ng-click="loadInstances()">
-                    <img id="caret" class="caret" src="../../res/up-caret.png"
-                         th:src="@{/res/up-caret.png}" alt="expand">
+                    <div class="entity-attribute form-group">
+                        <label for="work-id" class="entity-attribute-name">work</label>
+                        <div class="entity-attribute-additional"><span class="font-weight-bold">Title: </span>{{work.title}}</div>
+                        <input id="work-id" class="form-control" type="text" value="1" disabled
+                               th:value="${book.basedOn.id}"/>
+                    </div>
+                    <div class="entity-attribute form-group">
+                        <label for="title">title</label>
+                        <input id="title" class="form-control" type="text" th:value="${book.title}"/>
+                    </div>
+                    <div class="entity-attribute form-group">
+                        <label for="lang">language code</label>
+                        <input id="lang" class="form-control" type="text" th:value="${book.language.toString()}">
+                    </div>
+                    <div class="entity-attribute form-group">
+                        <label for="edition" class="entity-attribute-name">edition</label>
+                        <input id="edition" class="form-control" type="text"th:value="${book.edition}"/>
+                    </div>
+                </div>
+                <div class="entity-associations entity-form-section">
+                    <div class="associations-header">
+                        <a href="#" class="a-none" th:href="${instanceCreationHref}">
+                            <div class="caret-wrapper" ng-click="addInstance()">
+                                <img class="caret" src="../../res/plus.png"
+                                     th:src="@{/res/plus.png}" alt="">
+                            </div>
+                        </a>
+                        Instances
+                        <div class="caret-wrapper" ng-click="loadInstances()">
+                            <img id="caret" class="caret" src="../../res/up-caret.png"
+                                 th:src="@{/res/up-caret.png}" alt="expand">
+                        </div>
+                    </div>
+                    <div class="associations {{getHidden()}}">
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>isbn13</th>
+                                <th>format</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr ng-repeat="instance in instances">
+                                <td>
+                                    <a href="{{instance._links.adm}}">{{instance.id}}</a>
+                                </td>
+                                <td>
+                                    <a href="{{instance._links.adm}}" class="a-none">{{instance.isbn13}}</a>
+                                </td>
+                                <td>
+                                    {{instance.format}}
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="entity-form-section">
+                        <div class="submit-buttons">
+                            <div class="btn btn-primary submit-btn" ng-click="submitEditing()">Submit</div>
+                            <div class="btn btn-danger submit-btn" ng-click="remove()">Remove</div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="associations {{getHidden()}}">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>isbn13</th>
-                            <th>format</th>
+        </div>
+        <div class="col-xs-12 col-md-6">
+            <div class="statistics-container">
+                <div class="statistics-container-header">
+                    Download Statistics
+                </div>
+                <div class="statistics-contents">
+                    <table class="stats-table">
+                        <thead>
+                        <tr class="stats-table-header-row">
+                            <th
+                                class="stats-table-header"
+                                ng-repeat="column in stats.columns">
+                                {{column}}
+                            </th>
                         </tr>
-                    </thead>
-                    <tbody>
-                        <tr ng-repeat="instance in instances">
-                            <td>
-                                <a href="{{instance._links.adm}}">{{instance.id}}</a>
-                            </td>
-                            <td>
-                                <a href="{{instance._links.adm}}" class="a-none">{{instance.isbn13}}</a>
-                            </td>
-                            <td>
-                                {{instance.format}}
+                        </thead>
+                        <tbody>
+                        <tr ng-repeat="row in stats.rows">
+                            <td class="stats-table-cell"
+                                ng-repeat="rowValue in row">
+                                {{rowValue}}
                             </td>
                         </tr>
-                    </tbody>
-                </table>
-            </div>
-        <div class="entity-form-section">
-            <div class="submit-buttons">
-                <div class="btn btn-primary submit-btn" ng-click="submitEditing()">Submit</div>
-                <div class="btn btn-danger submit-btn" ng-click="remove()">Remove</div>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
+        </div>
     </div>
-    <span class="hidden" id="book-id" th:text="${book.id}">4</span>
+    <span class="hidden" id="book-id" th:text="${book.id}">6</span>
 </main>
 <script src="../../js/angular.min.js" th:src="@{/js/angular.min.js}"></script>
 <script th:src="@{/js/common.js}" src="../../js/common.js"></script>

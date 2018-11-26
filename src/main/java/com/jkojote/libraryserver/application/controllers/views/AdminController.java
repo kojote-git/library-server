@@ -56,6 +56,8 @@ public class AdminController {
         ENTITIES_HREF.put("createWork", WebConfig.URL + "adm/works/creation");
         ENTITIES_HREF.put("createBook", WebConfig.URL + "adm/books/creation");
         ENTITIES_HREF.put("createPublisher", WebConfig.URL + "adm/publishers/creation");
+        ENTITIES_HREF.put("authorsReport", WebConfig.URL + "rest/authors/report/html");
+        ENTITIES_HREF.put("booksReport", WebConfig.URL + "rest/books/report/html");
         ENTITIES_HREF_VIEW = Collections.unmodifiableMap(ENTITIES_HREF);
         NOT_FOUND = new ModelAndView();
         NOT_FOUND.setStatus(HttpStatus.NOT_FOUND);

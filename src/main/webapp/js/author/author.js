@@ -3,8 +3,7 @@ const authorModule = angular.module("authorModule", []),
     middleName = document.getElementById("middle-name"),
     lastName = document.getElementById("last-name");
 
-authorModule.controller("AuthorController", ["$http", "$scope",
-    function ($http, $scope) {
+authorModule.controller("AuthorController", ["$http", "$scope", function ($http, $scope) {
     $scope.worksAreLoaded = false;
     $scope.worksChanges =[];
     $scope.works = [];
@@ -147,7 +146,12 @@ authorModule.controller("AuthorController", ["$http", "$scope",
             }).catch(function (response) {
                 alert(response.data.error);
             })
-    }
+    };
+    $http
+        .get(LISE_REST_URL + "authors/" + getAuthorId() + "/dstats")
+        .then(function (resp) {
+            $scope.stats = resp.data;
+        })
 }]);
 function getAuthorId() {
     return document.getElementById("author-id").innerText;

@@ -24,7 +24,7 @@
             color: rgb(40, 40, 40);
             font-size: 14pt;
             min-height: 40px;
-            line-height: 40px;
+            line-height: 40px
         }
         td {
             padding: 3px;
@@ -45,26 +45,25 @@
 <body>
 <table>
     <h3>
-        Popular Books
+        Popular Authors
     </h3>
-    <h4>
-        <span th:text="${dateBegin}"></span> - <span th:text="${dateEnd}"></span>
-    </h4>
     <thead>
-        <tr>
-            <th>id</th>
-            <th>title</th>
-            <th>downloads</th>
-        </tr>
+    <tr>
+        <th>id</th>
+        <th>first name</th>
+        <th>middle name</th>
+        <th>last name</th>
+        <th>download count</th>
+    </tr>
     </thead>
     <tbody>
-        <th:block th:each="row : ${rows}">
-            <tr>
-               <td th:each="value : ${row}">
-                   <span th:text="${value}"></span>
-               </td>
-            </tr>
-        </th:block>
+    <th:block th:each="row : ${rows}">
+        <tr>
+            <td th:each="value : ${row}">
+                <span th:text="${value}"></span>
+            </td>
+        </tr>
+    </th:block>
     </tbody>
 </table>
 </body>

@@ -24,10 +24,13 @@ main {
 }
 
 .entity-form {
-    margin: 10px auto;
     background-color: rgb(254, 254, 254);
     border: 1px solid rgb(230, 230, 230);
     border-radius: 1px;
+}
+
+.center {
+    margin: 0 auto;
 }
 
 .medium-size-form {
@@ -79,6 +82,64 @@ main {
 
 .hidden {
     display: none;
+}
+
+.statistics-container {
+    margin: 0 auto;
+    background-color: rgb(254, 254, 254);
+    border: 1px solid rgb(230, 230, 230);
+    border-radius: 1px;
+    height: 100%;
+    overflow-y: scroll;
+}
+
+/* width */
+::-webkit-scrollbar {
+    width: 3px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: #888;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+.statistics-container-header {
+    padding: 3px;
+    font-size: 1.5em;
+    text-align: center;
+    background-color: rgb(246, 246, 246);
+}
+
+.stats-table {
+    width: 95%;
+    margin: 15px auto;
+}
+
+.stats-table-header {
+    text-align: center;
+    padding: 5px;
+    font-size: 16pt;
+    font-weight: normal;
+    background-color: rgb(246, 246, 246);
+    border: 1px solid rgb(160, 160, 160);
+}
+
+.stats-table-cell {
+    text-align: center;
+    border: 1px solid rgb(160, 160, 160);
+}
+
+.stats-table-header-row {
 }
 
 .caret-wrapper {

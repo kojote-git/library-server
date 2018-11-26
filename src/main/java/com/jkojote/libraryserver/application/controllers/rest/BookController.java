@@ -1,9 +1,6 @@
 package com.jkojote.libraryserver.application.controllers.rest;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonPrimitive;
+import com.google.gson.*;
 import com.jkojote.library.domain.model.book.Book;
 import com.jkojote.library.domain.model.book.instance.BookInstance;
 import com.jkojote.library.domain.model.publisher.Publisher;
@@ -20,13 +17,10 @@ import com.neovisionaries.i18n.LanguageCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
 import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.IContext;
-import org.thymeleaf.spring5.SpringTemplateEngine;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
@@ -34,12 +28,12 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import static com.jkojote.libraryserver.application.controllers.utils.Util.*;
+import static java.util.stream.Collectors.toList;
 
 @RestController
 @RequestMapping("/rest/books")
@@ -115,11 +109,16 @@ public class BookController {
     public ResponseEntity<String> reportHtml(HttpServletRequest req) {
         try {
             JsonObject resp = getReport(req);
-            Map<String, Object> objects = new HashMap<>();
-            objects.put("rows", resp.get("rows").getAsJsonArray());
-            objects.put("dateBegin", resp.get("dateBegin").getAsString());
-            objects.put("dateEnd", resp.get("dateEnd").getAsString());
-            IContext ctx = new Context(objects);
+            Spliterator<JsonElement> iterator = resp.getAsJsonArray("rows").spliterator();
+            List<List<String>> rows = StreamSupport.stream(iterator, false)
+                    .map(arr -> StreamSupport.stream(arr.getAsJsonArray().spliterator(), false)
+                        .map(JsonElement::getAsString).collect(toList()))
+                    .collect(toList());
+            IContext ctx = Context.builder()
+                    .add("rows", rows)
+                    .add("dateBegin", resp.get("dateBegin").getAsString())
+                    .add("dateEnd", resp.get("dateEnd").getAsString())
+                    .build();
             String res = templateEngine.process("book/report", ctx);
             return responseHtml(res, HttpStatus.OK);
         } catch (DateTimeParseException e) {
