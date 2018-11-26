@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import java.io.*;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.Random;
@@ -35,6 +36,12 @@ public final class Util {
         return headers;
     }
 
+    private static HttpHeaders htmlUtf8Headers() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Content-type", "text/html;charset=UTF-8");
+        return headers;
+    }
+
     public static ResponseEntity<String> responseMessage(String message, HttpHeaders headers, HttpStatus status) {
         JsonObject json = new JsonObject();
         if (message == null)
@@ -45,6 +52,10 @@ public final class Util {
 
     public static ResponseEntity<String> responseEntityJson(String message, HttpStatus status) {
         return new ResponseEntity<>(message, jsonUtf8Headers(), status);
+    }
+
+    public static ResponseEntity<String> responseHtml(String markup, HttpStatus status) {
+        return new ResponseEntity<>(markup, htmlUtf8Headers(), status);
     }
 
     public static ResponseEntity<String> errorResponse(String message, HttpStatus status) {
@@ -84,5 +95,20 @@ public final class Util {
             builder.append(ALPHA_NUMERIC.charAt(k));
         }
         return builder.toString();
+    }
+
+    public static String readFile(File file, boolean trim)
+    throws IOException  {
+        StringBuilder sb = new StringBuilder();
+        try (BufferedReader reader =
+                     new BufferedReader(new InputStreamReader(new FileInputStream(file)))) {
+            String str;
+            while ((str = reader.readLine()) != null) {
+                if (trim)
+                    str = str.trim();
+                sb.append(str).append('\n');
+            }
+            return sb.toString();
+        }
     }
 }

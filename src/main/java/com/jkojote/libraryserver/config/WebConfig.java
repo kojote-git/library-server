@@ -7,7 +7,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 @EnableWebMvc
-@Import({MvcConfig.class, ThymeleafConfig.class})
+@Import(MvcConfig.class)
 public class WebConfig implements WebMvcConfigurer {
 
     public static final String URL = "http://localhost:8080/lise/";

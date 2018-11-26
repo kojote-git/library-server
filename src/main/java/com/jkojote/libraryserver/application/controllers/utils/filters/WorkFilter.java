@@ -3,7 +3,7 @@ package com.jkojote.libraryserver.application.controllers.utils.filters;
 import com.jkojote.library.domain.model.work.Work;
 import com.jkojote.library.domain.shared.domain.DomainRepository;
 import com.jkojote.libraryserver.application.controllers.utils.EntityUrlParamsFilter;
-import com.jkojote.libraryserver.application.controllers.utils.RequestUrlParametersParser;
+import com.jkojote.libraryserver.application.controllers.utils.QueryStringParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -18,12 +18,12 @@ public class WorkFilter implements EntityUrlParamsFilter<Work> {
 
     private DomainRepository<Work> workRepository;
 
-    private RequestUrlParametersParser parametersParser;
+    private QueryStringParser parametersParser;
 
     @Autowired
     public WorkFilter(@Qualifier("workRepository")
                       DomainRepository<Work> workRepository,
-                      RequestUrlParametersParser parametersParser) {
+                      QueryStringParser parametersParser) {
         this.workRepository = workRepository;
         this.parametersParser = parametersParser;
     }

@@ -3,30 +3,43 @@ package com.jkojote.libraryserver.application.controllers.rest;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
 import com.jkojote.library.domain.model.book.Book;
 import com.jkojote.library.domain.model.book.instance.BookInstance;
 import com.jkojote.library.domain.model.publisher.Publisher;
 import com.jkojote.library.domain.model.work.Work;
 import com.jkojote.library.domain.shared.domain.DomainRepository;
 import com.jkojote.libraryserver.application.JsonConverter;
+import com.jkojote.libraryserver.application.QueryToJsonRunner;
+import com.jkojote.libraryserver.application.controllers.utils.Context;
+import com.jkojote.libraryserver.application.controllers.utils.Queries;
+import com.jkojote.libraryserver.application.controllers.utils.QueryStringParser;
 import com.jkojote.libraryserver.application.exceptions.MalformedRequestException;
 import com.jkojote.libraryserver.application.security.AuthorizationRequired;
 import com.neovisionaries.i18n.LanguageCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
+import org.thymeleaf.ITemplateEngine;
+import org.thymeleaf.context.IContext;
+import org.thymeleaf.spring5.SpringTemplateEngine;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import static com.jkojote.libraryserver.application.controllers.utils.Util.errorResponse;
-import static com.jkojote.libraryserver.application.controllers.utils.Util.responseEntityJson;
-import static com.jkojote.libraryserver.application.controllers.utils.Util.responseMessage;
+import static com.jkojote.libraryserver.application.controllers.utils.Util.*;
 
 @RestController
 @RequestMapping("/rest/books")
@@ -44,6 +57,12 @@ public class BookController {
 
     private JsonConverter<BookInstance> bookInstanceJsonConverter;
 
+    private QueryToJsonRunner queryRunner;
+
+    private QueryStringParser queryStringParser;
+
+    private ITemplateEngine templateEngine;
+
     @Autowired
     public BookController(@Qualifier("bookRepository")
                           DomainRepository<Book> bookRepository,
@@ -54,13 +73,19 @@ public class BookController {
                           @Qualifier("bookJsonConverter")
                           JsonConverter<Book> bookJsonConverter,
                           @Qualifier("biJsonConverter")
-                          JsonConverter<BookInstance> bookInstanceJsonConverter) {
+                          JsonConverter<BookInstance> bookInstanceJsonConverter,
+                          QueryToJsonRunner queryRunner,
+                          QueryStringParser queryStringParser,
+                          ITemplateEngine templateEngine) {
         this.bookRepository = bookRepository;
         this.jsonParser = new JsonParser();
         this.workRepository = workRepository;
         this.publisherRepository = publisherRepository;
         this.bookJsonConverter = bookJsonConverter;
         this.bookInstanceJsonConverter = bookInstanceJsonConverter;
+        this.queryRunner = queryRunner;
+        this.queryStringParser = queryStringParser;
+        this.templateEngine = templateEngine;
     }
 
     @GetMapping("")
@@ -72,6 +97,57 @@ public class BookController {
             res.add(bookJsonConverter.convertToJson(b));
         }
         return responseEntityJson(res.toString(), HttpStatus.OK);
+    }
+
+    @GetMapping("report")
+    @CrossOrigin
+    public ResponseEntity<String> report(HttpServletRequest req) {
+        try {
+            JsonObject resp = getReport(req);
+            return responseEntityJson(resp.toString(), HttpStatus.OK);
+        } catch (DateTimeParseException e) {
+            return errorResponse("incorrect date format; date format is 'YYYY-mm-dd", HttpStatus.UNPROCESSABLE_ENTITY);
+        }
+    }
+
+    @CrossOrigin
+    @GetMapping(value = "report/html")
+    public ResponseEntity<String> reportHtml(HttpServletRequest req) {
+        try {
+            JsonObject resp = getReport(req);
+            Map<String, Object> objects = new HashMap<>();
+            objects.put("rows", resp.get("rows").getAsJsonArray());
+            objects.put("dateBegin", resp.get("dateBegin").getAsString());
+            objects.put("dateEnd", resp.get("dateEnd").getAsString());
+            IContext ctx = new Context(objects);
+            String res = templateEngine.process("book/report", ctx);
+            return responseHtml(res, HttpStatus.OK);
+        } catch (DateTimeParseException e) {
+            return errorResponse("incorrect date format; date format is YYYY-mm-dd", HttpStatus.UNPROCESSABLE_ENTITY);
+        }
+    }
+
+    private JsonObject getReport(HttpServletRequest req) {
+        String queryString = req.getQueryString();
+        Map<String, String> params = queryStringParser.getParamsFromQueryString(queryString);
+        String dateBeginParam = params.getOrDefault("dateBegin", "1000-01-01");
+        String dateEndParam = params.getOrDefault("dateEnd", "9999-12-31");
+        LocalDate dateBegin = LocalDate.parse(dateBeginParam, DateTimeFormatter.ISO_LOCAL_DATE);
+        LocalDate dateEnd = LocalDate.parse(dateEndParam, DateTimeFormatter.ISO_LOCAL_DATE);
+        JsonObject resp = queryRunner.runQuery(Queries.POPULAR_BOOKS, dateBegin, dateEnd);
+        resp.add("dateBegin", new JsonPrimitive(dateBeginParam));
+        resp.add("dateEnd", new JsonPrimitive(dateEndParam));
+        return resp;
+    }
+
+    @GetMapping("{id}/dstats")
+    @CrossOrigin
+    public ResponseEntity<String> downloadStatistics(@PathVariable("id") long id) {
+        Book book = bookRepository.findById(id);
+        if (book == null)
+            return errorResponse("no such book with id " + id, HttpStatus.NOT_FOUND);
+        JsonObject resp = queryRunner.runQuery(Queries.BOOK_STATISTICS, id);
+        return responseEntityJson(resp.toString(), HttpStatus.OK);
     }
 
     @GetMapping("{id}")

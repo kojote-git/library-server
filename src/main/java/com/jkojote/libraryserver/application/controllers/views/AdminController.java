@@ -2,7 +2,7 @@ package com.jkojote.libraryserver.application.controllers.views;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.jkojote.libraryserver.application.QueryRunner;
+import com.jkojote.libraryserver.application.QueryToJsonRunner;
 import com.jkojote.libraryserver.application.controllers.utils.Util;
 import com.jkojote.libraryserver.application.security.AdminAuthorizationService;
 import com.jkojote.libraryserver.application.security.AuthorizationRequired;
@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -70,11 +69,11 @@ public class AdminController {
 
     private JsonParser parser;
 
-    private QueryRunner queryRunner;
+    private QueryToJsonRunner queryRunner;
 
     @Autowired
     public AdminController(@Qualifier("queryRunner")
-                           QueryRunner queryRunner) {
+                                   QueryToJsonRunner queryRunner) {
         this.parser = new JsonParser();
         this.queryRunner = queryRunner;
     }

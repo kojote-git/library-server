@@ -1,6 +1,6 @@
 package com.jkojote.lise;
 
-import com.jkojote.libraryserver.application.QueryRunner;
+import com.jkojote.libraryserver.application.QueryToJsonRunner;
 import com.jkojote.libraryserver.config.MvcConfig;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,7 +13,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 public class QueryRunnerTest {
 
     @Autowired
-    private QueryRunner runner;
+    private QueryToJsonRunner runner;
 
     @Test
     public void runQuery() {

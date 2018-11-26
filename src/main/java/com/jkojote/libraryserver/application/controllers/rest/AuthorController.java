@@ -6,13 +6,13 @@ import com.jkojote.library.domain.model.work.Work;
 import com.jkojote.library.domain.shared.domain.DomainRepository;
 import com.jkojote.library.values.Name;
 import com.jkojote.libraryserver.application.JsonConverter;
+import com.jkojote.libraryserver.application.QueryToJsonRunner;
 import com.jkojote.libraryserver.application.controllers.utils.EntityUrlParamsFilter;
-import com.jkojote.libraryserver.application.controllers.utils.RequestUrlParametersParser;
+import com.jkojote.libraryserver.application.controllers.utils.Queries;
 import com.jkojote.libraryserver.application.exceptions.MalformedRequestException;
 import com.jkojote.libraryserver.application.security.AuthorizationRequired;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -39,6 +39,8 @@ public class AuthorController {
 
     private EntityUrlParamsFilter<Author> authorFilter;
 
+    private QueryToJsonRunner queryRunner;
+
     private JsonParser jsonParser;
 
     @Autowired
@@ -52,13 +54,15 @@ public class AuthorController {
             @Qualifier("workJsonConverter")
             JsonConverter<Work> workJsonConverter,
             @Qualifier("authorFilter")
-            EntityUrlParamsFilter<Author> authorFilter) {
+            EntityUrlParamsFilter<Author> authorFilter,
+            QueryToJsonRunner queryRunner) {
         this.authorRepository = authorRepository;
         this.workRepository = workRepository;
         this.jsonParser = new JsonParser();
         this.authorJsonConverter = authorJsonConverter;
         this.workJsonConverter = workJsonConverter;
         this.authorFilter = authorFilter;
+        this.queryRunner = queryRunner;
     }
 
     @AuthorizationRequired
@@ -105,6 +109,23 @@ public class AuthorController {
             return errorResponse("no author with such id: " + id, HttpStatus.NOT_FOUND);
         }
         return responseEntityJson(authorJsonConverter.convertToString(author), HttpStatus.OK);
+    }
+
+    @GetMapping("{id}/dstats")
+    @CrossOrigin
+    public ResponseEntity<String> downloadStatistics(@PathVariable("id") long id) {
+        Author a = authorRepository.findById(id);
+        if (a == null)
+            return errorResponse("no such author with id " + id, HttpStatus.NOT_FOUND);
+        JsonObject resp = queryRunner.runQuery(Queries.AUTHOR_STATISTICS, id);
+        return responseEntityJson(resp.toString(), HttpStatus.OK);
+    }
+
+    @GetMapping("report")
+    @CrossOrigin
+    public ResponseEntity<String> report() {
+        JsonObject resp = queryRunner.runQuery(Queries.AUTHORS_REPORT);
+        return responseEntityJson(resp.toString(), HttpStatus.OK);
     }
 
     @GetMapping("{id}/works")

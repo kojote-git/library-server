@@ -13,18 +13,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component("queryRunner")
-class QueryRunnerImpl implements QueryRunner {
+class QueryToJsonRunnerImpl implements QueryToJsonRunner {
 
     private JdbcTemplate jdbcTemplate;
 
     @Autowired
-    QueryRunnerImpl(JdbcTemplate jdbcTemplate) {
+    QueryToJsonRunnerImpl(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override
     public JsonObject runQuery(String sql) {
         SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql);
+        return buildResponse(rowSet);
+    }
+
+    @Override
+    public JsonObject runQuery(String sql, Object... params) {
+        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql, params);
+        return buildResponse(rowSet);
+    }
+
+    private JsonObject buildResponse(SqlRowSet rowSet) {
         SqlRowSetMetaData meta = rowSet.getMetaData();
         JsonObject result = new JsonObject();
         JsonArray columns = new JsonArray();
@@ -38,7 +48,11 @@ class QueryRunnerImpl implements QueryRunner {
         while (rowSet.next()) {
             JsonArray row = new JsonArray();
             for (String columnName : columnNames) {
-                row.add(new JsonPrimitive(rowSet.getObject(columnName).toString()));
+                Object o = rowSet.getObject(columnName);
+                if (o != null)
+                    row.add(new JsonPrimitive(o.toString()));
+                else
+                    row.add(new JsonPrimitive("null"));
             }
             rows.add(row);
         }

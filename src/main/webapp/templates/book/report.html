@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org/">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+
+    </style>
+</head>
+<body>
+<table>
+    <h4>
+        <span th:text="${dateBegin}"></span> - <span th:text="${dateEnd}"></span>
+    </h4>
+    <thead>
+        <tr>
+            <th>id</th>
+            <th>title</th>
+            <th>downloads</th>
+        </tr>
+    </thead>
+    <tbody>
+        <th:block th:each="row : ${rows}">
+            <tr>
+               <td th:each="value : ${row}">
+                   <span th:text="${value.toString()}"></span>
+               </td>
+            </tr>
+        </th:block>
+    </tbody>
+</table>
+</body>
+</html>

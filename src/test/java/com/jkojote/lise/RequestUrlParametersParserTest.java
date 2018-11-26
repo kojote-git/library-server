@@ -1,7 +1,7 @@
 package com.jkojote.lise;
 
-import com.jkojote.libraryserver.application.controllers.utils.RequestUrlParametersParser;
-import com.jkojote.libraryserver.application.controllers.utils.RequestUrlParametersParserImpl;
+import com.jkojote.libraryserver.application.controllers.utils.QueryStringParser;
+import com.jkojote.libraryserver.application.controllers.utils.QueryStringParserImpl;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -9,7 +9,7 @@ import static org.junit.Assert.assertTrue;
 
 public class RequestUrlParametersParserTest {
 
-    private RequestUrlParametersParser parser = new RequestUrlParametersParserImpl();
+    private QueryStringParser parser = new QueryStringParserImpl();
 
     @Test
     public void parse() {

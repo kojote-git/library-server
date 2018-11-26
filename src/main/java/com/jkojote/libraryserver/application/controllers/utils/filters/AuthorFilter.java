@@ -3,8 +3,8 @@ package com.jkojote.libraryserver.application.controllers.utils.filters;
 import com.jkojote.library.domain.model.author.Author;
 import com.jkojote.library.domain.shared.domain.DomainRepository;
 import com.jkojote.libraryserver.application.controllers.utils.EntityUrlParamsFilter;
-import com.jkojote.libraryserver.application.controllers.utils.RequestUrlParametersParser;
-import com.jkojote.libraryserver.application.controllers.utils.RequestUrlParametersParserImpl;
+import com.jkojote.libraryserver.application.controllers.utils.QueryStringParser;
+import com.jkojote.libraryserver.application.controllers.utils.QueryStringParserImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -19,14 +19,14 @@ public class AuthorFilter implements EntityUrlParamsFilter<Author> {
 
     private DomainRepository<Author> authorRepository;
 
-    private RequestUrlParametersParser parametersParser;
+    private QueryStringParser parametersParser;
 
     @Autowired
     public AuthorFilter(@Qualifier("authorRepository")
                         DomainRepository<Author> authorRepository) {
 
         this.authorRepository = authorRepository;
-        this.parametersParser = new RequestUrlParametersParserImpl();
+        this.parametersParser = new QueryStringParserImpl();
     }
 
     @Override

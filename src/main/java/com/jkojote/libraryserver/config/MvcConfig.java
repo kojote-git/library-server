@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 @Configuration
-@Import(PersistenceConfig.class)
+@Import({PersistenceConfig.class, ThymeleafConfig.class})
 @ComponentScan("com.jkojote.libraryserver.application")
 public class MvcConfig {
 
