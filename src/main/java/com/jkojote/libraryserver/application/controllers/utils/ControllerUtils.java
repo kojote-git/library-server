@@ -14,7 +14,7 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.Random;
 
-public final class Util {
+public final class ControllerUtils {
 
     private static final String ALPHA_NUMERIC = "abcdefghijklmnopqrstyvwxyz0123456789";
 
@@ -95,20 +95,5 @@ public final class Util {
             builder.append(ALPHA_NUMERIC.charAt(k));
         }
         return builder.toString();
-    }
-
-    public static String readFile(File file, boolean trim)
-    throws IOException  {
-        StringBuilder sb = new StringBuilder();
-        try (BufferedReader reader =
-                     new BufferedReader(new InputStreamReader(new FileInputStream(file)))) {
-            String str;
-            while ((str = reader.readLine()) != null) {
-                if (trim)
-                    str = str.trim();
-                sb.append(str).append('\n');
-            }
-            return sb.toString();
-        }
     }
 }

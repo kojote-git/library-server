@@ -14,7 +14,6 @@ import com.jkojote.libraryserver.application.security.AuthorizationRequired;
 import com.neovisionaries.i18n.LanguageCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,9 +25,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.jkojote.libraryserver.application.controllers.utils.Util.errorResponse;
-import static com.jkojote.libraryserver.application.controllers.utils.Util.responseEntityJson;
-import static com.jkojote.libraryserver.application.controllers.utils.Util.responseMessage;
+import static com.jkojote.libraryserver.application.controllers.utils.ControllerUtils.errorResponse;
+import static com.jkojote.libraryserver.application.controllers.utils.ControllerUtils.responseEntityJson;
+import static com.jkojote.libraryserver.application.controllers.utils.ControllerUtils.responseMessage;
 
 @RestController
 @RequestMapping("/rest/works")

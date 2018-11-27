@@ -10,7 +10,6 @@ import com.jkojote.libraryserver.application.QueryToJsonRunner;
 import com.jkojote.libraryserver.application.controllers.utils.Context;
 import com.jkojote.libraryserver.application.controllers.utils.EntityUrlParamsFilter;
 import com.jkojote.libraryserver.application.controllers.utils.Queries;
-import com.jkojote.libraryserver.application.controllers.utils.QueryStringParser;
 import com.jkojote.libraryserver.application.exceptions.MalformedRequestException;
 import com.jkojote.libraryserver.application.security.AuthorizationRequired;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,12 +23,11 @@ import org.thymeleaf.context.IContext;
 import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Spliterator;
 import java.util.stream.StreamSupport;
 
-import static com.jkojote.libraryserver.application.controllers.utils.Util.*;
+import static com.jkojote.libraryserver.application.controllers.utils.ControllerUtils.*;
 import static java.util.stream.Collectors.toList;
 
 @RestController

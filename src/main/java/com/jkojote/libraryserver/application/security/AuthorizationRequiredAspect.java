@@ -1,6 +1,6 @@
 package com.jkojote.libraryserver.application.security;
 
-import com.jkojote.libraryserver.application.controllers.utils.Util;
+import com.jkojote.libraryserver.application.controllers.utils.ControllerUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -88,8 +88,8 @@ public class AuthorizationRequiredAspect {
     }
 
     private void authorizeViaCookies(HttpServletRequest req) {
-        Optional<Cookie> optionalTokenCookie = Util.extractCookie("accessToken", req);
-        Optional<Cookie> optionalLoginCookie = Util.extractCookie("login", req);
+        Optional<Cookie> optionalTokenCookie = ControllerUtils.extractCookie("accessToken", req);
+        Optional<Cookie> optionalLoginCookie = ControllerUtils.extractCookie("login", req);
         if (!optionalTokenCookie.isPresent() || !optionalLoginCookie.isPresent())
             throw new AuthorizationException("no credentials present", UNAUTHORIZED);
         Cookie login = optionalLoginCookie.get();

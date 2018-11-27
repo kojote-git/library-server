@@ -3,7 +3,7 @@ package com.jkojote.libraryserver.application.controllers.views;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.jkojote.libraryserver.application.QueryToJsonRunner;
-import com.jkojote.libraryserver.application.controllers.utils.Util;
+import com.jkojote.libraryserver.application.controllers.utils.ControllerUtils;
 import com.jkojote.libraryserver.application.security.AdminAuthorizationService;
 import com.jkojote.libraryserver.application.security.AuthorizationRequired;
 import com.jkojote.libraryserver.application.security.AuthorizationService;
@@ -27,8 +27,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.jkojote.libraryserver.application.controllers.utils.Util.errorResponse;
-import static com.jkojote.libraryserver.application.controllers.utils.Util.responseEntityJson;
+import static com.jkojote.libraryserver.application.controllers.utils.ControllerUtils.errorResponse;
+import static com.jkojote.libraryserver.application.controllers.utils.ControllerUtils.responseEntityJson;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
@@ -99,7 +99,7 @@ public class AdminController {
             return errorResponse("no credentials present", UNAUTHORIZED);
         if (!authorizationService.authorize(login, password))
             return errorResponse("wrong credentials", UNAUTHORIZED);
-        String accessToken = Util.randomAlphaNumeric();
+        String accessToken = ControllerUtils.randomAlphaNumeric();
         authorizationService.setToken(login, accessToken);
         resp.addHeader("Access-token", accessToken);
         resp.addCookie(new Cookie("accessToken", accessToken));
@@ -110,8 +110,8 @@ public class AdminController {
     @PostMapping("logout")
     @ResponseBody
     public ResponseEntity<String> logout(HttpServletRequest req, HttpServletResponse resp) {
-        Optional<Cookie> optionalToken = Util.extractCookie("accessToken", req);
-        Optional<Cookie> optionalLogin = Util.extractCookie("login", req);
+        Optional<Cookie> optionalToken = ControllerUtils.extractCookie("accessToken", req);
+        Optional<Cookie> optionalLogin = ControllerUtils.extractCookie("login", req);
         if (!optionalToken.isPresent())
             return new ResponseEntity<>("no credentials present", BAD_REQUEST);
         if (optionalLogin.isPresent()) {

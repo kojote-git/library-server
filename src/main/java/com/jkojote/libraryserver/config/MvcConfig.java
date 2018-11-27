@@ -1,6 +1,9 @@
 package com.jkojote.libraryserver.config;
 
 import com.jkojote.library.config.PersistenceConfig;
+import com.jkojote.libraryserver.application.mailing.MailSender;
+import com.jkojote.libraryserver.application.mailing.MailSenderImpl;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -10,5 +13,9 @@ import org.springframework.context.annotation.Import;
 @ComponentScan("com.jkojote.libraryserver.application")
 public class MvcConfig {
 
+    @Bean
+    public MailSender mailSender() {
+        return new MailSenderImpl(false);
+    }
 
 }

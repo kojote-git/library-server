@@ -19,9 +19,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.jkojote.libraryserver.application.controllers.utils.Util.errorResponse;
-import static com.jkojote.libraryserver.application.controllers.utils.Util.responseEntityJson;
-import static com.jkojote.libraryserver.application.controllers.utils.Util.responseMessage;
+import static com.jkojote.libraryserver.application.controllers.utils.ControllerUtils.errorResponse;
+import static com.jkojote.libraryserver.application.controllers.utils.ControllerUtils.responseEntityJson;
+import static com.jkojote.libraryserver.application.controllers.utils.ControllerUtils.responseMessage;
 
 @RestController
 @RequestMapping("/rest/publishers")
