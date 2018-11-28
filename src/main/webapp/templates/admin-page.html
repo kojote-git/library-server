@@ -49,7 +49,27 @@
                 This is the page for administrator through which you can navigate to
                 specific entity type of entity.
             </div>
+            <div class="text-section-content">
+                Also, you can send recommendations lists to readers.
+                Just click this button -> <span id="send-lists" class="btn btn-danger">SEND</span>
+            </div>
         </div>
     </main>
 </body>
+<script src="../js/util.js" th:src="@{/js/util.js}"></script>
+<script src="../js/common.js" th:src="@{/js/common.js}"></script>
+<script>
+    const send = document.getElementById("send-lists");
+    send.addEventListener("click", function (e) {
+        let xhr = new XMLHttpRequest();
+        xhr.open("POST", LISE_ADM_URL + "mailing", true);
+        xhr.setRequestHeader("Login", getLogin());
+        xhr.setRequestHeader("Access-token", getAccessToken());
+        xhr.addEventListener("load", function (e) {
+            let resp = JSON.parse(xhr.response);
+            alert(resp.responseMessage);
+        });
+        xhr.send();
+    })
+</script>
 </html>

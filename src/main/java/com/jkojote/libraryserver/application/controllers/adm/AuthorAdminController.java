@@ -1,6 +1,6 @@
-package com.jkojote.libraryserver.application.controllers.views;
+package com.jkojote.libraryserver.application.controllers.adm;
 
-import com.jkojote.library.domain.model.publisher.Publisher;
+import com.jkojote.library.domain.model.author.Author;
 import com.jkojote.library.domain.shared.domain.DomainRepository;
 import com.jkojote.libraryserver.application.security.AuthorizationRequired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -12,40 +12,47 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.List;
 
 @Controller
-@RequestMapping("/adm/publishers")
-public class PublisherAdminController {
+@RequestMapping("/adm/authors")
+public class AuthorAdminController {
 
-    private DomainRepository<Publisher> publisherRepository;
+    private DomainRepository<Author> authorRepository;
 
-    public PublisherAdminController(@Qualifier("publisherRepository")
-                                    DomainRepository<Publisher> publisherRepository) {
-        this.publisherRepository = publisherRepository;
-    }
-
-    @GetMapping("")
-    @AuthorizationRequired
-    public ModelAndView publishers(HttpServletRequest req) {
-        ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setStatus(HttpStatus.OK);
-        modelAndView.setViewName("publisher/publishers");
-        modelAndView.addAllObjects(AdminController.getEntitiesHrefs());
-        return modelAndView;
+    public AuthorAdminController(@Qualifier("authorRepository")
+                                 DomainRepository<Author> authorRepository) {
+        this.authorRepository = authorRepository;
     }
 
     @GetMapping("{id}")
     @AuthorizationRequired
-    public ModelAndView publisherEditing(HttpServletRequest req, @PathVariable("id") long id) {
+    public ModelAndView authorEditing(@PathVariable("id") long id, HttpServletRequest req) {
+        Author author = authorRepository.findById(id);
         ModelAndView modelAndView = new ModelAndView();
-        Publisher publisher = publisherRepository.findById(id);
-        if (publisher == null) {
+        if (author == null) {
             return AdminController.getNotFound();
         }
         modelAndView.setStatus(HttpStatus.OK);
-        modelAndView.setViewName("publisher/publisher");
-        modelAndView.addObject("publisher", publisher);
+        modelAndView.addObject("author", new AuthorView(author));
         modelAndView.addAllObjects(AdminController.getEntitiesHrefs());
+        modelAndView.setViewName("author/author");
+        return modelAndView;
+    }
+
+    @GetMapping("")
+    @AuthorizationRequired
+    public ModelAndView authors(HttpServletRequest req) {
+        List<Author> authors = authorRepository.findAll();
+        List<AuthorView> views = new ArrayList<>();
+        ModelAndView modelAndView = new ModelAndView();
+        for (Author a : authors) {
+            views.add(new AuthorView(a));
+        }
+        modelAndView.addObject("authors", views);
+        modelAndView.addAllObjects(AdminController.getEntitiesHrefs());
+        modelAndView.setViewName("author/authors");
         return modelAndView;
     }
 
@@ -53,8 +60,7 @@ public class PublisherAdminController {
     @AuthorizationRequired
     public ModelAndView creation(HttpServletRequest req) {
         ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setViewName("publisher/create");
-        modelAndView.setStatus(HttpStatus.OK);
+        modelAndView.setViewName("author/create");
         modelAndView.addAllObjects(AdminController.getEntitiesHrefs());
         return modelAndView;
     }

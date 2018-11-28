@@ -10,6 +10,8 @@ public class PlainMessageData implements MessageData {
 
     private Object content;
 
+    private String encoding;
+
     private String mimeType;
 
     private List<Address> recipients;
@@ -24,6 +26,11 @@ public class PlainMessageData implements MessageData {
     @Override
     public Object getContent() {
         return content;
+    }
+
+    @Override
+    public String getEncoding() {
+        return encoding;
     }
 
     @Override
@@ -43,6 +50,8 @@ public class PlainMessageData implements MessageData {
         private Object content;
 
         private String mimeType;
+
+        private String encoding;
 
         private List<Address> recipients;
 
@@ -86,12 +95,20 @@ public class PlainMessageData implements MessageData {
             return this;
         }
 
+        public Builder setEncoding(String encoding) {
+            this.encoding = encoding;
+            return this;
+        }
+
         public PlainMessageData build() {
             PlainMessageData res = new PlainMessageData();
             res.recipients = this.recipients;
             res.content = this.content;
             res.mimeType = this.mimeType;
             res.subject = this.subject;
+            if (this.encoding == null)
+                this.encoding = "utf-8";
+            res.encoding = this.encoding;
             if (autoClear)
                 clear();
             return res;
@@ -101,7 +118,7 @@ public class PlainMessageData implements MessageData {
             this.content = null;
             this.subject = null;
             this.recipients = null;
-            this.subject = null;
+            this.encoding = null;
         }
     }
 }

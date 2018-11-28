@@ -1,4 +1,4 @@
-package com.jkojote.libraryserver.application.controllers.views;
+package com.jkojote.libraryserver.application.controllers.adm;
 
 import com.jkojote.library.domain.model.book.Book;
 import com.jkojote.library.domain.shared.domain.DomainRepository;
@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;

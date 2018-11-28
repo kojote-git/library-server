@@ -1,4 +1,4 @@
-package com.jkojote.libraryserver.application.controllers.views;
+package com.jkojote.libraryserver.application.controllers.adm;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;

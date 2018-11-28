@@ -32,7 +32,7 @@ public class MailSenderImpl implements MailSender {
         MimeMessage message = new MimeMessage(session);
         message.setSentDate(new Date());
         addRecipients(message, data.getRecipients());
-        message.setContent(data.getContent(), data.getMimeType());
+        message.setContent(data.getContent(), data.getMimeType() + ";charset=" + data.getEncoding());
         message.setSubject(data.getSubject());
         Transport.send(message);
     }

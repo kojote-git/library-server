@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org/">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        main {
+            max-width: 768px;
+            padding: 15px;
+            background-color: rgb(253, 253, 253);
+            border-right: 1px solid rgb(245, 245, 245);
+            border-left: 1px solid rgb(245, 245, 245);
+            box-shadow: 0 0 2px rgb(230, 230, 230);
+        }
+        .recommendation-list {
+            list-style: none;
+        }
+        .recommendation-item {
+            padding: 5px;
+            margin: 0;
+            border-bottom: 1px solid rgb(240, 240, 240);
+            display: grid;
+            grid-template-columns: 100px auto;
+            grid-column-gap: 3px;
+        }
+        .font-weight-bold {
+            font-weight: bold;
+        }
+        .text-center {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<main>
+    <h3 class="text-center">Here is the recommendations list!</h3>
+    <ul class="recommendation-list">
+        <th:block th:each="r : ${recommendations}">
+            <li class="recommendation-item">
+                <div class="description">
+                    <a th:href="${r.reference}" th:text="${r.book.title}"></a><br/>
+                    <span class="font-weight-bold">Written By: </span>
+                    <th:block th:each="author : ${r.book.basedOn.authors}">
+                        <span class="author-name"
+                            th:text="${author.name.firstName} + ' ' + ${author.name.lastName}">
+                        </span>
+                        <br/>
+                    </th:block>
+                </div>
+            </li>
+        </th:block>
+    </ul>
+</main>
+</body>
+</html>

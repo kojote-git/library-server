@@ -9,6 +9,10 @@ public interface MessageData {
 
     Object getContent();
 
+    default String getEncoding() {
+        return "utf-8";
+    }
+
     String getMimeType();
 
     List<Address> getRecipients();

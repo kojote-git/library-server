@@ -1,4 +1,4 @@
-package com.jkojote.libraryserver.application.controllers.views;
+package com.jkojote.libraryserver.application.controllers.adm;
 
 import com.jkojote.library.domain.model.book.instance.BookInstance;
 import com.jkojote.library.domain.shared.domain.DomainRepository;
