@@ -1,5 +1,7 @@
 package com.jkojote.libraryserver.config;
 
+import com.jkojote.library.clauses.SqlClauseBuilder;
+import com.jkojote.library.clauses.mysql.MySqlClauseBuilder;
 import com.jkojote.library.config.PersistenceConfig;
 import com.jkojote.libraryserver.application.mailing.MailSender;
 import com.jkojote.libraryserver.application.mailing.MailSenderImpl;
@@ -15,7 +17,12 @@ public class MvcConfig {
 
     @Bean
     public MailSender mailSender() {
-        return new MailSenderImpl(false);
+        return new MailSenderImpl(true);
+    }
+
+    @Bean
+    public SqlClauseBuilder builder() {
+        return new MySqlClauseBuilder();
     }
 
 }

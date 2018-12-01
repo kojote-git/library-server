@@ -10,9 +10,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Import(MvcConfig.class)
 public class WebConfig implements WebMvcConfigurer {
 
-    public static final String URL = "http://192.168.0.103:8080/lise/";
+    public static final String URL = "http://localhost:8080/lise/";
 
-    public static final String WEBLIB_URL = "http://192.168.0.103:8080/weblib/";
+    public static final String WEBLIB_URL = "http://localhost:8080/weblib/";
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {

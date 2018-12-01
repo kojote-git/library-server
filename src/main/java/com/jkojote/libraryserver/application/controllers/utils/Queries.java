@@ -2,6 +2,7 @@ package com.jkojote.libraryserver.application.controllers.utils;
 
 import com.jkojote.libraryserver.application.Utils;
 
+import javax.rmi.CORBA.Util;
 import java.io.File;
 
 public final class Queries {
@@ -14,6 +15,8 @@ public final class Queries {
 
     public static final String AUTHORS_REPORT;
 
+    public static final String RATED_SUBJECTS;
+
     static {
         try {
             ClassLoader loader = Queries.class.getClassLoader();
@@ -21,10 +24,12 @@ public final class Queries {
             File bookStatistics = new File(loader.getResource("statistics/book_statistics.sql").getFile());
             File authorsReport = new File(loader.getResource("reports/popular_authors.sql").getFile());
             File authorsStatistics = new File(loader.getResource("statistics/author_statistics.sql").getFile());
+            File ratedSubjects = new File(loader.getResource("rated_subjects.sql").getFile());
             POPULAR_BOOKS = Utils.readFile(booksReport, true);
             BOOK_STATISTICS = Utils.readFile(bookStatistics, true);
             AUTHOR_STATISTICS = Utils.readFile(authorsStatistics, true);
             AUTHORS_REPORT = Utils.readFile(authorsReport, true);
+            RATED_SUBJECTS = Utils.readFile(ratedSubjects, true);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

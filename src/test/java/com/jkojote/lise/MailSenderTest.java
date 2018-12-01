@@ -38,7 +38,7 @@ public class MailSenderTest {
         MessageData data = message
                 .addRecipient(new InternetAddress("a1mostbeastz@gmail.com"))
                 .setContent("Do not respond on this message")
-                .setMimeType("text/plain;charset=utf-8")
+                .setMimeType("text/plain")
                 .setSubject("Mailing test")
                 .build();
         sender.send(data, authenticator);

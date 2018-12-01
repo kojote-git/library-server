@@ -27,6 +27,7 @@ import javax.mail.internet.InternetAddress;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
@@ -74,20 +75,19 @@ public class MailingController {
             return responseMessage("recommendations are being generated", OK);
         try {
             recommendationsBeingGenerated.set(true);
-            List<Recommendation> recommendations = generator.random(5);
-            IContext ctx = Context.builder()
-                    .add("recommendations", recommendations).build();
-            String html = templateEngine.process("recommendations-list", ctx);
-            MessageData data = PlainMessageData.Builder.create(false)
-                    .withAllRecipients(readerRepository.findAll().stream()
-                            .map(r -> toAddress(r.getEmail()))
-                            .collect(Collectors.toList())
-                    )
-                    .setMimeType("text/html")
-                    .setContent(html)
-                    .setSubject("Here is the recommendations")
-                    .build();
-            mailSender.send(data, authenticator);
+            for (Reader r : readerRepository.findAll()) {
+                List<Recommendation> recommendations = generator.getFor(r, 5);
+                IContext ctx = Context.builder()
+                        .add("recommendations", recommendations).build();
+                String html = templateEngine.process("recommendations-list", ctx);
+                MessageData data = PlainMessageData.Builder.create(false)
+                        .addRecipient(toAddress(r.getEmail()))
+                        .setMimeType("text/html")
+                        .setContent(html)
+                        .setSubject("Here is the recommendations")
+                        .build();
+                mailSender.send(data, authenticator);
+            }
             recommendationsBeingGenerated.set(false);
             return responseMessage("recommendations are generated", OK);
         } catch (Exception e) {
