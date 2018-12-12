@@ -41,6 +41,6 @@ public class MailSenderTest {
                 .setMimeType("text/plain")
                 .setSubject("Mailing test")
                 .build();
-        sender.send(data, authenticator);
+//        sender.send(data, authenticator);
     }
 }
